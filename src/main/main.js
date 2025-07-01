@@ -9,6 +9,7 @@ const fs = require('fs');
 const { MASTER_COACH_PROMPT, buildPromptWithGSI } = require('../coach/prompt.js');
 const GeminiClient = require('../utils/geminiClient.js');
 const AutoAnalyzer = require('../utils/autoAnalyzer.js');
+const TeamChatManager = require('../utils/teamChatManager.js');
 
 class CoachAIApp {
     constructor() {
@@ -16,7 +17,9 @@ class CoachAIApp {
         this.geminiClient = null;
         this.autoAnalyzer = null;
         this.gsiServer = null;
+        this.teamChatManager = null;
         this.isOverlayVisible = true;
+        this.autoTeamChatEnabled = true; // Configurável
         
         this.init();
     }
@@ -144,17 +147,38 @@ class CoachAIApp {
                 }
             }
         });
+        
+        // Toggle Team Chat Automático
+        globalShortcut.register('F11', () => {
+            this.toggleAutoTeamChat();
+        });
+        
+        // Envio manual de teste para team
+        globalShortcut.register('Ctrl+F11', () => {
+            this.sendTestTeamMessage();
+        });
     }
     
         initializeAI() {
         try {
             this.geminiClient = new GeminiClient();
+            this.teamChatManager = new TeamChatManager();
+            
             // Esperar o overlay estar pronto antes de inicializar o autoAnalyzer
             if (this.overlayWindow) {
-                this.autoAnalyzer = new AutoAnalyzer(this.geminiClient, this.overlayWindow);
+                this.autoAnalyzer = new AutoAnalyzer(this.geminiClient, this.overlayWindow, this.teamChatManager);
             }
-            console.log('[AI] AI Coach initialized with AutoAnalyzer');
+            
+            console.log('[AI] AI Coach initialized with AutoAnalyzer + Team Chat');
             console.log('[GEMINI] Gemini 2.5 Flash connected to AutoAnalyzer');
+            console.log('[TEAM CHAT] Sistema de chat automático ativado');
+            
+            // Mostrar instruções do team chat
+            const instructions = this.teamChatManager.getPlayerInstructions();
+            console.log('[TEAM CHAT] 📋 INSTRUÇÕES PARA O JOGADOR:');
+            instructions.setup.forEach(step => console.log(`   ${step}`));
+            console.log(`[TEAM CHAT] 📁 Pasta CS2: ${instructions.path}`);
+            
         } catch (error) {
             console.error('Failed to initialize AI:', error);
         }
@@ -216,6 +240,31 @@ class CoachAIApp {
         ipcMain.on('get-settings', (event) => {
             event.reply('settings-data', this.getSettings());
         });
+        
+        // Handlers para Team Chat
+        ipcMain.on('toggle-team-chat', () => {
+            this.toggleAutoTeamChat();
+        });
+        
+        ipcMain.on('send-team-message', async (event, message) => {
+            if (this.teamChatManager) {
+                const messageId = await this.teamChatManager.sendTeamMessage(message, 'normal');
+                event.reply('team-message-sent', { success: true, messageId });
+            } else {
+                event.reply('team-message-sent', { success: false, error: 'Team chat not initialized' });
+            }
+        });
+        
+        ipcMain.on('get-team-chat-status', (event) => {
+            if (this.teamChatManager) {
+                event.reply('team-chat-status', {
+                    enabled: this.autoTeamChatEnabled,
+                    status: this.teamChatManager.getStatus()
+                });
+            } else {
+                event.reply('team-chat-status', { enabled: false, status: null });
+            }
+        });
     }
     
         async handleCoachRequest(requestData) {
@@ -248,6 +297,8 @@ class CoachAIApp {
                 });
             }
             
+            // NOTA: Envio automático para team agora é feito pelo AutoAnalyzer
+            
         } catch (error) {
             console.error('Error in coach request:', error);
             
@@ -266,6 +317,11 @@ class CoachAIApp {
         // Processar dados do CS2 GSI
         if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
             this.overlayWindow.webContents.send('cs2-data', gameData);
+        }
+        
+        // V3.0: Auto-detecção de jogo ativo e ativação automática
+        if (this.teamChatManager) {
+            this.teamChatManager.detectGameActivity(gameData);
         }
         
         // Auto análise com Gemini real
@@ -311,18 +367,72 @@ class CoachAIApp {
             overlayVisible: this.isOverlayVisible,
             aiEnabled: this.geminiClient !== null,
             gsiConnected: this.gsiServer !== null,
+            teamChatEnabled: this.autoTeamChatEnabled,
+            teamChatStatus: this.teamChatManager ? this.teamChatManager.getStatus() : null,
             shortcuts: {
                 toggleOverlay: 'F9',
                 toggleMouse: 'F10',
+                toggleTeamChat: 'F11',
+                testTeamMessage: 'Ctrl+F11',
                 emergencyClose: 'Ctrl+Shift+F12'
             }
         };
+    }
+    
+    /**
+     * Liga/desliga envio automático para o team
+     */
+    toggleAutoTeamChat() {
+        this.autoTeamChatEnabled = !this.autoTeamChatEnabled;
+        
+        const status = this.autoTeamChatEnabled ? 'ATIVADO' : 'DESATIVADO';
+        const emoji = this.autoTeamChatEnabled ? '✅' : '❌';
+        
+        console.log(`[TEAM CHAT] ${emoji} Team Chat Automático ${status}`);
+        
+        // Notificar overlay se existir
+        if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+            this.overlayWindow.webContents.send('team-chat-toggled', {
+                enabled: this.autoTeamChatEnabled,
+                status: status
+            });
+        }
+    }
+    
+    /**
+     * Envia mensagem de teste para o team
+     */
+    async sendTestTeamMessage() {
+        if (!this.teamChatManager) {
+            console.log('[TEAM CHAT] ❌ Sistema não inicializado');
+            return;
+        }
+        
+        const testMessages = [
+            '[COACH] Teste de comunicação automática',
+            '[COACH] Sistema funcionando corretamente',
+            '[COACH] Ready para dicas estratégicas'
+        ];
+        
+        const randomMessage = testMessages[Math.floor(Math.random() * testMessages.length)];
+        
+        try {
+            const messageId = await this.teamChatManager.sendTeamMessage(randomMessage, 'normal');
+            console.log(`[TEAM CHAT] 🧪 Mensagem de teste enviada: "${randomMessage}" (ID: ${messageId})`);
+        } catch (error) {
+            console.error('[TEAM CHAT] ❌ Erro ao enviar teste:', error);
+        }
     }
     
     // Cleanup
     destroy() {
         if (this.autoAnalyzer) {
             this.autoAnalyzer.destroy();
+        }
+        
+        if (this.teamChatManager) {
+            console.log('[TEAM CHAT] 🧹 Finalizando sistema de team chat...');
+            // TeamChatManager não precisa de destroy específico, mas podemos logar
         }
         
         if (this.gsiServer) {

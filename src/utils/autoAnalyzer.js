@@ -6,9 +6,10 @@
 const { buildPromptWithGSI } = require('../coach/prompt.js');
 
 class AutoAnalyzer {
-    constructor(geminiClient, overlayWindow = null) {
+    constructor(geminiClient, overlayWindow = null, teamChatManager = null) {
         this.geminiClient = geminiClient;
         this.overlayWindow = overlayWindow;
+        this.teamChatManager = teamChatManager;
         this.lastAnalysis = null;
         this.analysisInterval = null;
         this.lastGameState = null;
@@ -122,7 +123,7 @@ class AutoAnalyzer {
         }
 
         console.log(`[SUCCESS] Insight gerado: ${response.substring(0, 50)}...`);
-        this.displayAutoInsight(response, analysisType);
+        await this.displayAutoInsight(response, analysisType);
         
         // Atualizar cooldown
         this.lastInsightByType[analysisType] = Date.now();
@@ -247,7 +248,7 @@ class AutoAnalyzer {
         this.queueInsightRequest('auto_analysis', this.lastGameState, 'Periodic analysis');
     }
     
-    displayAutoInsight(insight, type) {
+    async displayAutoInsight(insight, type) {
         console.log(`[DEBUG] displayAutoInsight chamado com:`);
         console.log(`[DEBUG] - insight: "${insight}"`);
         console.log(`[DEBUG] - type: ${type}`);
@@ -269,6 +270,30 @@ class AutoAnalyzer {
             });
         } else {
             console.log(`[DEBUG] Overlay window não disponível ou destruído`);
+        }
+        
+        // V3.0: SISTEMA INTELIGENTE DE TEAM CHAT
+        if (this.teamChatManager) {
+            try {
+                // Sistema inteligente decide se enviar para o team
+                const teamChatResult = await this.teamChatManager.sendStrategicTip(fullMessage, {
+                    type: type,
+                    playerSide: this.currentPlayerSide,
+                    gameData: this.lastGameState
+                });
+                
+                if (teamChatResult) {
+                    console.log(`[TEAM CHAT] 🤖 IA enviou "${type}" para team (ID: ${teamChatResult})`);
+                    // Atualizar timestamp para cooldown inteligente
+                    this.teamChatManager.lastTeamChatTime = Date.now();
+                } else {
+                    console.log(`[TEAM CHAT] 🤖 IA decidiu não enviar "${type}" para team`);
+                }
+            } catch (chatError) {
+                console.error(`[TEAM CHAT] ❌ Erro no sistema inteligente:`, chatError);
+            }
+        } else {
+            console.log(`[TEAM CHAT] ⚠️ Sistema inteligente não disponível`);
         }
         
         // Salvar no histórico
