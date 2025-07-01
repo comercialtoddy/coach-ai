@@ -1,0 +1,42 @@
+{
+  "name": "native-screenshot-module",
+  "version": "1.0.0",
+  "description": "Native DXGI Desktop Duplication API module for Coach-AI screenshot capture",
+  "main": "build/Release/native_screenshot_module.node",
+  "scripts": {
+    "configure": "cmake-js configure",
+    "build": "cmake-js build",
+    "rebuild": "cmake-js rebuild",
+    "clean": "cmake-js clean",
+    "install": "npm run rebuild",
+    "test": "node test/test.js"
+  },
+  "keywords": [
+    "screenshot",
+    "capture", 
+    "dxgi",
+    "desktop-duplication",
+    "windows",
+    "native",
+    "addon"
+  ],
+  "author": "Coach-AI Team",
+  "license": "MIT",
+  "gypfile": false,
+  "dependencies": {
+    "node-addon-api": "^8.0.0"
+  },
+  "devDependencies": {
+    "cmake-js": "^7.3.0"
+  },
+  "cmake-js": {
+    "runtime": "node",
+    "runtimeVersion": "process.version",
+    "arch": "process.arch"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "os": ["win32"],
+  "cpu": ["x64", "arm64"]
+} 

@@ -1,0 +1,164 @@
+# Coach-AI MVP - Electron Desktop Application for CS2 Coaching
+
+## Product Overview
+Build an **Electron desktop application** that provides real-time AI coaching for Counter-Strike 2 players using **Game State Integration (GSI)**, **screenshot analysis**, and **Google Gemini AI**.
+
+## Technical Stack
+- **Desktop Framework**: Electron with TypeScript
+- **Frontend**: React + Tailwind CSS
+- **Backend**: Node.js + Express for GSI server
+- **AI Integration**: Google Gemini 2.5 Flash API
+- **Screenshot Capture**: Sharp + native screenshot APIs
+- **Data Storage**: SQLite for local storage
+- **Real-time Updates**: WebSockets between main and renderer process
+
+## Core Architecture
+```
+┌─────────────────────────────────────────────┐
+│             Electron App                     │
+├─────────────────────────────────────────────┤
+│  ┌─────────────┐  ┌────────────────────┐   │
+│  │   Overlay    │  │   Main Process     │   │
+│  │  (Renderer)  │  │                    │   │
+│  │             │  │  - GSI HTTP Server  │   │
+│  │  - HUD      │  │  - Screenshot       │   │
+│  │  - Alerts   │  │  - Gemini AI        │   │
+│  │  - Config   │  │  - Data Processing  │   │
+│  └─────────────┘  └────────────────────┘   │
+└─────────────────────────────────────────────┘
+           ↑                    ↑
+           │                    │
+    ┌──────┴──────┐      ┌─────┴──────┐
+    │   CS2 Game  │      │ Gemini API │
+    │   (GSI)     │      │            │
+    └─────────────┘      └────────────┘
+```
+
+## MVP Features Implementation
+
+### 1. **Electron Application Setup**
+- Initialize Electron app with main/renderer architecture
+- Configure transparent overlay window with always-on-top
+- Implement click-through functionality for non-intrusive overlay
+- Setup IPC communication between main and renderer processes
+
+### 2. **CS2 Game State Integration (GSI)**
+- Create HTTP server to receive CS2 GSI data
+- Auto-generate and place `gamestate_integration_coachai.cfg` in CS2 directory
+- Parse JSON data for: player stats, economy, round info, team data
+- Real-time event detection: kills, deaths, rounds won/lost, purchases
+
+### 3. **Screenshot System**
+- Implement automatic screenshot capture on critical events
+- Trigger screenshots on: round start, player death, bomb plant/defuse
+- Process images with Sharp for optimization
+- Sync screenshots with GSI events for context
+
+### 4. **AI Analysis Engine (Gemini Integration)**
+- Setup Google Gemini 2.5 Flash API integration
+- Send multimodal prompts: GSI JSON data + screenshots
+- Implement skill-level detection based on performance metrics
+- Generate personalized coaching advice based on user level
+
+### 5. **Skill-Based Coaching System**
+- **Beginners (0-500hrs)**: Economy basics, safe positioning, aim fundamentals
+- **Intermediates (500-2000hrs)**: Tactical decisions, utility usage, map control
+- **Professionals (2000+hrs)**: Advanced patterns, meta analysis, psychological aspects
+
+### 6. **Real-Time Overlay Interface**
+- HUD overlay showing real-time coaching tips
+- Economic status and buy recommendations
+- Positioning suggestions with minimap integration
+- Alert system for critical situations (low HP, economy risk, tactical mistakes)
+
+### 7. **Post-Round Analysis**
+- Generate detailed round summaries with AI insights
+- Performance tracking and improvement suggestions
+- Historical data comparison
+- Export analysis reports
+
+### 8. **Configuration & Settings**
+- Settings panel accessible via hotkey (default: F10)
+- Overlay position, size, and opacity controls
+- Coaching intensity levels (minimal, moderate, detailed)
+- Privacy controls for data sharing
+
+## Technical Implementation Tasks
+
+### Phase 1: Foundation (Sprints 1-2)
+1. **Electron App Initialization**
+   - Setup package.json with Electron, TypeScript, React
+   - Configure webpack/vite for bundling
+   - Create main process with overlay window
+
+2. **GSI Server Implementation**
+   - Express server listening on localhost:3000
+   - CS2 config file auto-deployment
+   - JSON parsing and event detection
+
+3. **Basic Overlay System**
+   - Transparent React overlay
+   - IPC communication setup
+   - Basic HUD components
+
+### Phase 2: Core Features (Sprints 3-5)
+4. **Screenshot Integration**
+   - Native screenshot capture
+   - Event-triggered screenshots
+   - Image processing pipeline
+
+5. **Gemini AI Integration**
+   - API setup and authentication
+   - Multimodal request handling
+   - Response parsing and formatting
+
+6. **Skill Detection System**
+   - Performance metrics calculation
+   - User level classification
+   - Adaptive coaching algorithms
+
+### Phase 3: User Experience (Sprints 6-8)
+7. **Real-Time Coaching**
+   - Live tactical alerts
+   - Economic recommendations
+   - Positioning guidance
+
+8. **Post-Round Analysis**
+   - Round summary generation
+   - Historical tracking
+   - Performance reports
+
+9. **Configuration Interface**
+   - Settings panel UI
+   - User preferences storage
+   - Overlay customization
+
+### Phase 4: Polish & Testing (Sprints 9-10)
+10. **Performance Optimization**
+    - Memory leak prevention
+    - CPU/GPU usage optimization
+    - Anti-cheat compliance verification
+
+11. **Testing & Quality Assurance**
+    - Unit tests for core functions
+    - Integration testing with CS2
+    - User acceptance testing
+
+12. **Distribution & Packaging**
+    - Electron builder configuration
+    - Auto-updater implementation
+    - Installation package creation
+
+## Success Criteria
+- **Performance**: Overlay responds in <500ms to GSI events
+- **Stability**: <0.1% crash rate during 1-hour sessions
+- **Game Impact**: <5% FPS reduction in CS2
+- **User Satisfaction**: 70% report skill improvement after 2 weeks
+- **Anti-Cheat**: Full VAC compliance verified
+
+## Risk Mitigation
+- **API Latency**: Implement local caching and offline mode
+- **Resolution Support**: Test on 1080p, 1440p, 4K displays
+- **Anti-Cheat**: Use only read-only GSI API, no game file modification
+
+This focused PRD targets building a production-ready Electron desktop application that integrates seamlessly with CS2 to provide AI-powered coaching through an intelligent overlay system. 

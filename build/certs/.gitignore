@@ -1,0 +1,43 @@
+# Code Signing Certificates
+# NEVER commit certificates to version control!
+
+# Windows certificates
+*.p12
+*.pfx
+*.cer
+*.crt
+*.key
+
+# macOS certificates
+*.mobileprovision
+*.provisionprofile
+*.p8
+*.pem
+
+# Apple Developer certificates
+AuthKey_*.p8
+DeveloperIDInstaller.cer
+DeveloperIDApplication.cer
+
+# Certificate backups
+*.backup
+*.bak
+
+# Private keys
+private_key.pem
+private.key
+
+# Certificate signing requests
+*.csr
+
+# Log files that might contain sensitive info
+*.log
+signing.log
+
+# Temporary certificate files
+temp_*
+tmp_*
+
+# Allow only documentation and configuration
+!README.md
+!.gitignore 
