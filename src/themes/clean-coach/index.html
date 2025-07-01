@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Coach AI - Competitive Overlay</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        /* Configurações específicas para overlay transparente */
+        html, body {
+            background: transparent !important;
+            -webkit-app-region: no-drag;
+        }
+        
+        /* Evitar seleção de texto */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="overlay-container">
+            <div class="overlay-layout">
+                
+                <!-- ÚNICO COMPONENTE: AI Coach Display - SOMENTE RESPOSTA -->
+                <div class="ai-coach-container interactive">
+                    
+                    <!-- Painel Principal do Coach AI -->
+                    <div class="coach-panel">
+                        <div class="coach-header">
+                            <div class="coach-status" id="coach-status"></div>
+                            <div class="coach-title">AI Coach</div>
+                        </div>
+                        <div class="coach-response" id="coach-response"></div>
+                    </div>
+
+                    <!-- REMOVIDO: Área de Input de Texto -->
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="shell.js"></script>
+    <script src="debug.js"></script>
+    
+    <!-- Electron Renderer Process -->
+    <script>
+        // Verificar se está rodando no Electron
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            console.log('CS2 Coach AI Overlay loaded in Electron');
+            
+            // Configurar comunicação com o main process
+            const { ipcRenderer } = require('electron');
+            
+            // Receber dados do CS2 GSI
+            ipcRenderer.on('cs2-data', (event, data) => {
+                window.CoachAI.updateGameData(data);
+            });
+            
+            // Receber resposta do Coach AI
+            ipcRenderer.on('coach-response', (event, response) => {
+                window.CoachAI.displayResponse(response);
+            });
+            
+            // Receber insights automáticos
+            ipcRenderer.on('auto-insight', (event, data) => {
+                window.CoachAI.displayResponse(data.insight, 'success');
+            });
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,59 @@
+/**
+ * CS2 Coach AI - Size Variables
+ * Dimensões responsivas para resolução 1920x1080
+ */
+
+:root {
+  /* Fator de escala baseado em viewport */
+  --scale-factor: 0.9259vh; /* Aproximadamente 10px em 1080p */
+  
+  /* Margens do HUD CS2 (evitar sobreposição) */
+  --viewport-margin-x: 2rem;
+  --viewport-margin-y: 1.5rem;
+  
+  /* Dimensões base */
+  --unit-xs: calc(var(--scale-factor) * 0.5); /* ~5px */
+  --unit-sm: calc(var(--scale-factor) * 0.75); /* ~7.5px */
+  --unit-md: var(--scale-factor); /* ~10px */
+  --unit-lg: calc(var(--scale-factor) * 1.5); /* ~15px */
+  --unit-xl: calc(var(--scale-factor) * 2); /* ~20px */
+  --unit-2xl: calc(var(--scale-factor) * 3); /* ~30px */
+  
+  /* Espaçamentos */
+  --spacing-xs: var(--unit-xs);
+  --spacing-sm: var(--unit-sm);
+  --spacing-md: var(--unit-md);
+  --spacing-lg: var(--unit-lg);
+  --spacing-xl: var(--unit-xl);
+  --spacing-2xl: var(--unit-2xl);
+  
+  /* Bordas e raios */
+  --border-width: 1px;
+  --border-radius-sm: 4px;
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
+  --border-radius-xl: 12px;
+  
+  /* Componentes específicos */
+  --coach-panel-width: 320px;
+  --coach-panel-height: 200px;
+  --input-field-height: 36px;
+  --button-height: 32px;
+  --minimap-size: 140px;
+  
+  /* Z-index layers */
+  --z-overlay: 9999;
+  --z-modal: 10000;
+  --z-tooltip: 10001;
+  
+  /* Transições */
+  --transition-fast: 150ms ease-in-out;
+  --transition-medium: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
+  
+  /* Sombras */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.3);
+} 

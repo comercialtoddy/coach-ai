@@ -1,0 +1,196 @@
+/**
+ * CS2 Coach AI - Main Overlay Styles
+ * Overlay competitivo limpo e responsivo para 1920x1080
+ */
+
+@import url('./vars/colors.css');
+@import url('./vars/sizes.css');
+
+/* Reset e configurações base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-primary);
+  background: transparent;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container principal do overlay */
+#app {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Não bloquear cliques do CS2 */
+  z-index: var(--z-overlay);
+}
+
+/* Componentes com interação */
+.interactive {
+  pointer-events: auto;
+}
+
+/* Layout principal */
+.overlay-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: var(--viewport-margin-y) var(--viewport-margin-x);
+  /* Garantir margens do HUD CS2 */
+  margin: var(--viewport-margin-y) var(--viewport-margin-x);
+}
+
+/* Layout simplificado - APENAS AI Coach Display */
+.overlay-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 80px; /* Espaço do HUD CS2 inferior */
+}
+
+.ai-coach-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  width: 500px; /* Aumentado para melhor visibilidade */
+  max-width: 90vw;
+}
+
+/* Componente: Coach AI Panel - ÚNICO ELEMENTO */
+.coach-panel {
+  background: var(--gradient-overlay);
+  border: var(--border-width) solid var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-lg); /* Aumentado padding */
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md); /* Aumentado gap */
+  min-height: 150px; /* Aumentado altura mínima */
+}
+
+.coach-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.coach-status {
+  width: 10px; /* Aumentado tamanho */
+  height: 10px;
+  border-radius: 50%;
+  background: var(--active-primary);
+  animation: pulse 2s infinite;
+}
+
+.coach-title {
+  font-size: 14px; /* Aumentado de 12px */
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.coach-response {
+  flex: 1;
+  padding: var(--spacing-md); /* Aumentado padding */
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: var(--border-radius-md);
+  font-size: 16px; /* AUMENTADO SIGNIFICATIVAMENTE de 11px para 16px */
+  font-weight: 500; /* Adicionado peso da fonte */
+  color: var(--text-primary);
+  line-height: 1.5; /* Aumentado espaçamento entre linhas */
+  overflow-y: auto;
+  max-height: 200px; /* Aumentado altura máxima */
+}
+
+.coach-response:empty::before {
+  content: "Aguardando insights do AI Coach...";
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 14px; /* Fonte menor para placeholder */
+}
+
+/* REMOVIDO: Estilos da área de input - não mais necessários */
+/* .input-area, .input-container, .coach-input, .send-button, .char-counter removidos */
+
+/* Animações */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: slideIn var(--transition-medium) ease-out;
+}
+
+/* Responsividade */
+@media (max-width: 1366px) {
+  .ai-coach-container {
+    width: 450px; /* Mantido tamanho maior */
+  }
+  
+  .coach-panel {
+    padding: var(--spacing-md);
+  }
+  
+  .coach-response {
+    font-size: 14px; /* Reduzido apenas em telas menores */
+  }
+}
+
+/* Estados de loading */
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid var(--active-primary);
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+} 

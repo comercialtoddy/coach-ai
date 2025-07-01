@@ -1,0 +1,38 @@
+/**
+ * CS2 Coach AI - Color Variables
+ * Paleta de cores para overlay competitivo
+ */
+
+:root {
+  /* Cores principais */
+  --bg-primary: #2A2A2A;
+  --bg-secondary: #3A3A3A;
+  --bg-overlay: rgba(42, 42, 42, 0.95);
+  
+  /* Elementos ativos */
+  --active-primary: #4A9E5A;
+  --active-secondary: #5BB26B;
+  --active-hover: #3E8A4A;
+  
+  /* Texto */
+  --text-primary: #FFFFFF;
+  --text-secondary: #CCCCCC;
+  --text-muted: #999999;
+  --text-active: #4A9E5A;
+  
+  /* Feedback visual */
+  --success: #4A9E5A;
+  --warning: #F4A460;
+  --error: #FF6B6B;
+  --info: #4A9EDA;
+  
+  /* Transparências */
+  --opacity-low: 0.1;
+  --opacity-medium: 0.3;
+  --opacity-high: 0.7;
+  --opacity-overlay: 0.95;
+  
+  /* Gradientes */
+  --gradient-active: linear-gradient(135deg, #4A9E5A 0%, #5BB26B 100%);
+  --gradient-overlay: linear-gradient(180deg, rgba(42, 42, 42, 0.95) 0%, rgba(58, 58, 58, 0.9) 100%);
+} 

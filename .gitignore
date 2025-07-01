@@ -1,0 +1,253 @@
+# CS2 Coach AI - .gitignore
+
+# ========================================
+# DEPENDÊNCIAS E PACKAGES
+# ========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# ========================================
+# VARIÁVEIS DE AMBIENTE E CHAVES
+# ========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+**/gemini.key
+**/api.key
+**/config/*.key
+
+# ========================================
+# ARQUIVOS DE LOG E DEBUG
+# ========================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.npm
+
+# ========================================
+# ARQUIVOS TEMPORÁRIOS E CACHE
+# ========================================
+.cache/
+.tmp/
+.temp/
+tmp/
+temp/
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ========================================
+# BUILD E DISTRIBUIÇÃO
+# ========================================
+dist/
+build/
+out/
+release-builds/
+app/dist/
+app/build/
+
+# ========================================
+# ELECTRON ESPECÍFICO
+# ========================================
+.electron-gyp/
+.node-gyp/
+*.tgz
+*.tar.gz
+
+# ========================================
+# SISTEMA OPERACIONAL
+# ========================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========================================
+# EDITORES E IDEs
+# ========================================
+
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# JetBrains
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ========================================
+# DESENVOLVIMENTO E TESTE
+# ========================================
+coverage/
+.nyc_output/
+.coverage
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.pytest_cache/
+htmlcov/
+
+# ========================================
+# ARQUIVOS ESPECÍFICOS DO PROJETO
+# ========================================
+
+# Configurações locais do CS2
+gamestate_integration_*.cfg.local
+config.local.json
+
+# Arquivos de backup do projeto
+*.backup
+*.bak
+*.orig
+
+# Arquivos de instalação
+*.exe
+*.dmg
+*.pkg
+*.deb
+*.rpm
+
+# ========================================
+# DADOS SENSÍVEIS E LOGS DO JOGO
+# ========================================
+
+# Logs do CS2 Coach AI
+coach-ai.log
+debug.log
+error.log
+access.log
+
+# Dados de sessão
+session-data/
+user-data/
+game-logs/
+
+# Screenshots ou gravações
+screenshots/
+recordings/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.avi
+*.mov
+
+# ========================================
+# FERRAMENTAS DE BUILD
+# ========================================
+
+# webpack
+.webpack/
+webpack-stats.json
+
+# Rollup
+.rollup.cache/
+
+# Parcel
+.parcel-cache/
+
+# ========================================
+# RUNTIME E PROCESSO
+# ========================================
+.pid
+*.pid
+*.seed
+*.pid.lock
+pids/
+
+# ========================================
+# DOCUMENTAÇÃO GERADA
+# ========================================
+docs/generated/
+*.pdf
+jsdoc/
+
+# ========================================
+# ARQUIVOS DE CONFIGURAÇÃO LOCAIS
+# ========================================
+.npmrc.local
+.yarnrc.local
+
+# ========================================
+# IGNORAR ARQUIVOS DE DOCUMENTAÇÃO TEMPORÁRIOS
+# (Manter apenas os principais)
+# ========================================
+*-TEMP.md
+*-DRAFT.md
+*-OLD.md
+
+# ========================================
+# FIM DO .gitignore
+# ======================================== 
