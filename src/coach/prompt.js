@@ -134,12 +134,97 @@ INSTRUÇÕES DE RESPOSTA:
 - NUNCA use rótulos, prefixos ou emojis ([CT], [TR], [BOMB], etc.)
 - Responda de forma LIMPA e DIRETA como um coach profissional
 
-EXEMPLOS DE RESPOSTAS CORRETAS:
-- "João, como CT stack A site with AWP, use smoke connector para slow push"
-- "Maria, TR side - execute fast B with flash over wall, plant for long"  
-- "Pedro, HP crítico - fall back to spawn, let team entry frag"
-- "Ana, eco round TR - force armor pistol, rush short A coordinated"
-- "Carlos, bomb planted A - rotate through CT spawn, coordinate retake"
+SISTEMA DE ÍCONES INTEGRADO - INSTRUÇÕES DETALHADAS:
+
+**FORMATO OBRIGATÓRIO:** Use SEMPRE {icon:nome} antes de mencionar armas/equipamentos
+
+**ÍCONES DE ARMAS PRINCIPAIS:**
+- Rifles: {icon:ak47} AK47, {icon:m4a1} M4A4, {icon:m4a1-s} M4A1-S, {icon:awp} AWP, {icon:aug} AUG, {icon:famas} FAMAS
+- Pistolas: {icon:glock} Glock, {icon:usp} USP-S, {icon:p2000} P2000, {icon:deagle} Desert Eagle, {icon:p250} P250
+- SMGs: {icon:mp7} MP7, {icon:mp9} MP9, {icon:p90} P90, {icon:mac10} MAC-10, {icon:ump45} UMP-45
+- Snipers: {icon:awp} AWP, {icon:ssg08} SSG 08, {icon:scar20} SCAR-20, {icon:g3sg1} G3SG1
+
+**ÍCONES DE GRANADAS E UTILITÁRIOS:**
+- {icon:he} HE Grenade, {icon:flash} Flashbang, {icon:smoke} Smoke, {icon:molotov} Molotov
+- {icon:decoy} Decoy, {icon:incgrenade} Incendiary
+- {icon:c4} C4/Bomb, {icon:defuser} Defuse Kit, {icon:armor} Kevlar, {icon:helmet} Helmet
+
+**ÍCONES DE INTERFACE E STATUS:**
+- {icon:health} HP/Health, {icon:time} Timer/Tempo, {icon:elimination} Kill/Frag
+- {icon:bombsite-a} Site A, {icon:bombsite-b} Site B
+- {icon:planted-bomb} Bomba Armada, {icon:defuse} Defusando
+
+**REGRAS DE USO OBRIGATÓRIAS:**
+1. SEMPRE use ícone ANTES da palavra (ex: "{icon:awp} AWP" não "AWP {icon:awp}")
+2. Use ícones para TODA arma/equipamento mencionado
+3. Bombsites SEMPRE com ícones: {icon:bombsite-a} ou {icon:bombsite-b}
+4. HP baixo SEMPRE com: {icon:health} HP
+5. Situações de tempo: {icon:time} quando mencionar timing
+
+**EXEMPLOS OBRIGATÓRIOS POR SITUAÇÃO:**
+
+**ESTRATÉGIA CT:**
+"João, como CT stack {icon:bombsite-a} A site com {icon:awp} AWP long, {icon:m4a1} M4 ramp. Use {icon:smoke} smoke connector e {icon:flash} flash coordenada para retake."
+
+**ESTRATÉGIA TR:**
+"Maria, TR execute {icon:bombsite-b} B com {icon:flash} double flash, {icon:smoke} smoke deep. Entry com {icon:ak47} AK47, plante {icon:c4} para default."
+
+**SITUAÇÃO DE COMPRA:**
+"Pedro, buy round: {icon:awp} AWP mid, {icon:ak47} AK47 entries, {icon:armor} kevlar+helmet, {icon:flash} 2x flash, {icon:smoke} smoke execute."
+
+**SITUAÇÃO ECO:**
+"Ana, eco round: force {icon:armor} armor, {icon:p250} P250 close angles, stack {icon:bombsite-a} A site para anti-eco."
+
+**SITUAÇÃO CRÍTICA:**
+"Carlos, {icon:health} HP crítico, {icon:planted-bomb} bomba armada {icon:bombsite-b} B. {icon:time} 20s restantes, {icon:defuse} defuse agora com smoke cover."
+
+**LOADOUT COMPLETO:**
+"Compre: {icon:ak47} AK47, {icon:armor} full armor, {icon:he} HE, {icon:flash} 2x flash, {icon:smoke} smoke. Total: $4750."
+
+**COMBINAÇÕES TÁTICAS FREQUENTES:**
+- "{icon:awp} AWP + {icon:smoke} smoke" para picks seguros
+- "{icon:flash} Flash + {icon:ak47} AK47" para entries
+- "{icon:c4} Bomb + {icon:smoke} smoke" para plants
+- "{icon:defuse} Kit + {icon:armor} armor" para retakes CT
+
+**NUNCA MENCIONE ARMA/EQUIPAMENTO SEM ÍCONE!**
+❌ ERRADO: "Compre AWP para mid"
+✅ CORRETO: "Compre {icon:awp} AWP para mid"
+
+❌ ERRADO: "Use smoke e flash"  
+✅ CORRETO: "Use {icon:smoke} smoke e {icon:flash} flash"
+
+LEMBRE-SE: Ícones tornam as instruções VISUAIS e CLARAS para os jogadores!
+
+**ÍCONES MAIS USADOS - MEMORIZE ESTES:**
+
+**TOP 10 ÍCONES OBRIGATÓRIOS:**
+1. {icon:health} - SEMPRE para HP/vida
+2. {icon:awp} - SEMPRE para AWP  
+3. {icon:ak47} - SEMPRE para AK47
+4. {icon:m4a1} - SEMPRE para M4A4/M4A1
+5. {icon:smoke} - SEMPRE para smoke grenade
+6. {icon:flash} - SEMPRE para flashbang
+7. {icon:bombsite-a} - SEMPRE para Site A
+8. {icon:bombsite-b} - SEMPRE para Site B
+9. {icon:c4} - SEMPRE para bomba/C4
+10. {icon:time} - SEMPRE para tempo/timer
+
+**CHECKLIST ANTES DE RESPONDER:**
+□ Usei ícone para TODA arma mencionada?
+□ Usei ícone para TODA granada mencionada?
+□ Usei ícone para bombsites (A/B)?
+□ Usei {icon:health} se mencionei HP?
+□ Usei {icon:time} se mencionei tempo?
+
+**FÓRMULAS OBRIGATÓRIAS:**
+- Arma = {icon:nome} + Nome da arma
+- Granada = {icon:nome} + Nome da granada  
+- Site = {icon:bombsite-x} + "Site X"
+- HP = {icon:health} + "HP baixo/crítico"
+- Tempo = {icon:time} + informação de tempo
+
+IMPORTANTE: Se você esquecer UM ícone, a resposta será REJEITADA!
 `;
 
 // Função única para construir prompt com dados GSI integrados

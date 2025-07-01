@@ -193,4 +193,154 @@ html, body {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* === SISTEMA DE ÍCONES === */
+
+/* Container base para ícones */
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Ícones inline no texto */
+.inline-icon {
+  width: 18px;
+  height: 18px;
+  margin: 0 3px;
+  opacity: 0.9;
+  filter: brightness(1.1);
+}
+
+/* Ícones maiores para destaque */
+.large-icon {
+  width: 24px;
+  height: 24px;
+  margin: 0 4px;
+}
+
+/* Ícones pequenos para contexto */
+.small-icon {
+  width: 14px;
+  height: 14px;
+  margin: 0 2px;
+}
+
+/* Estilização do SVG dentro dos ícones */
+.icon-container svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: all 0.2s ease;
+}
+
+/* Efeitos de hover para ícones interativos */
+.icon-container.interactive:hover svg {
+  transform: scale(1.1);
+  filter: brightness(1.3);
+}
+
+/* Ícones coloridos por categoria */
+.icon-container.weapon svg {
+  filter: hue-rotate(200deg) brightness(1.2);
+}
+
+.icon-container.grenade svg {
+  filter: hue-rotate(120deg) brightness(1.1);
+}
+
+.icon-container.utility svg {
+  filter: hue-rotate(60deg) brightness(1.2);
+}
+
+.icon-container.interface svg {
+  filter: brightness(1.3) contrast(1.1);
+}
+
+/* Animação de aparição para ícones */
+.icon-container.fade-in {
+  animation: iconFadeIn 0.3s ease-out;
+}
+
+@keyframes iconFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Agrupamento de ícones */
+.icon-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+/* Ícones em listas de loadout */
+.loadout-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.loadout-icons .icon-container {
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive icons */
+@media (max-width: 1366px) {
+  .inline-icon {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .large-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .small-icon {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+/* Ícones com tooltips */
+.icon-container[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+.icon-container[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
 } 

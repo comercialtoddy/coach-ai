@@ -44,19 +44,73 @@ class CoachAI {
         this.elements.coachStatus.style.background = 'var(--active-primary)';
     }
     
-    displayResponse(response, type = 'normal') {
+    async displayResponse(response, type = 'normal') {
         const responseElement = this.elements.coachResponse;
         
         // Adicionar animação
         responseElement.classList.add('fade-in');
         
-        // Definir conteúdo baseado no tipo
-        if (type === 'error') {
-            responseElement.innerHTML = `<span style="color: var(--error);">${response}</span>`;
-        } else if (type === 'success') {
-            responseElement.innerHTML = `<span style="color: var(--success);">${response}</span>`;
-        } else {
-            responseElement.textContent = response;
+        try {
+            console.log('[DISPLAY] Iniciando processamento de ícones para:', response.substring(0, 50) + '...');
+            
+            // Processar texto com sistema de ícones
+            let processedText = response;
+            
+            if (window.IconSystem) {
+                console.log('[DISPLAY] 🎯 Sistema de ícones disponível, processando...');
+                
+                // USAR PROCESSAMENTO SUPER ROBUSTO para garantir remoção total dos colchetes
+                if (window.IconSystem.processTextSuperRobust) {
+                    processedText = await window.IconSystem.processTextSuperRobust(response);
+                    console.log('[DISPLAY] 🚀 Processamento SUPER ROBUSTO concluído');
+                } else {
+                    // Fallback para método padrão
+                    console.log('[DISPLAY] ⚠️ Usando processamento padrão como fallback');
+                    
+                    // Auto-detectar itens do jogo e adicionar ícones
+                    processedText = await window.IconSystem.autoAddIcons(response);
+                    console.log('[DISPLAY] Auto-detecção completa:', processedText.substring(0, 50) + '...');
+                    
+                    // Processar ícones manuais {icon:nome}
+                    processedText = await window.IconSystem.processTextWithIcons(processedText);
+                    console.log('[DISPLAY] Processamento manual completo:', processedText.substring(0, 50) + '...');
+                }
+            } else {
+                console.warn('[DISPLAY] ❌ Sistema de ícones não disponível!');
+            }
+            
+            // LIMPEZA FINAL OBRIGATÓRIA: Garantir que NENHUM padrão {icon:*} sobrou
+            if (window.IconSystem && window.IconSystem.cleanAllIconPatterns) {
+                processedText = window.IconSystem.cleanAllIconPatterns(processedText);
+                console.log('[DISPLAY] 🧹 Limpeza final aplicada');
+            } else {
+                // LIMPEZA DE EMERGÊNCIA: Se IconSystem não estiver disponível
+                console.warn('[DISPLAY] ⚠️ IconSystem não disponível, aplicando limpeza de emergência');
+                processedText = processedText.replace(/\{icon:[^}]*\}/gi, '');
+                console.log('[DISPLAY] 🚨 Limpeza de emergência aplicada');
+            }
+            
+            // Definir conteúdo baseado no tipo - AGORA COM HTML DIRETO
+            if (type === 'error') {
+                responseElement.innerHTML = `<span style="color: var(--error);">${processedText}</span>`;
+            } else if (type === 'success') {
+                responseElement.innerHTML = `<span style="color: var(--success);">${processedText}</span>`;
+            } else {
+                responseElement.innerHTML = processedText; // Mudado de textContent para innerHTML
+            }
+            
+            console.log('[DISPLAY] ✅ Conteúdo definido (SEM COLCHETES):', processedText.substring(0, 100));
+            
+        } catch (error) {
+            console.error('[DISPLAY] Erro ao processar ícones:', error);
+            // Fallback para texto simples
+            if (type === 'error') {
+                responseElement.innerHTML = `<span style="color: var(--error);">${response}</span>`;
+            } else if (type === 'success') {
+                responseElement.innerHTML = `<span style="color: var(--success);">${response}</span>`;
+            } else {
+                responseElement.textContent = response;
+            }
         }
         
         // Scroll para o final
@@ -67,7 +121,7 @@ class CoachAI {
             responseElement.classList.remove('fade-in');
         }, 250);
         
-        console.log('[DISPLAY] Response shown:', response.substring(0, 50) + '...');
+        console.log('[DISPLAY] Response shown with icons:', response.substring(0, 50) + '...');
     }
     
     updateGameData(data) {

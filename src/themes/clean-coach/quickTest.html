@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Test</title>
+    <style>
+        body { 
+            background: #222; 
+            color: white; 
+            padding: 20px; 
+            font-family: monospace;
+        }
+        .test-area {
+            background: #333;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Quick Icon Test</h1>
+    
+    <div class="test-area">
+        <h3>Test 1: Manual HTML</h3>
+        <div id="manual-test">
+            Teste manual: 
+            <span class="icon-container inline-icon" style="display: inline-flex; align-items: center; width: 18px; height: 18px; margin: 0 3px; vertical-align: middle;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="25.97" height="25.97">
+                    <path fill="#fff" d="M10.67 10.67V3.01h10.66v7.66h7.66v10.66h-7.66v7.66H10.67v-7.66H3.01V10.67z" transform="translate(-3.01 -3.01)"/>
+                </svg>
+            </span>
+            HP baixo
+        </div>
+    </div>
+    
+    <div class="test-area">
+        <h3>Test 2: System Test</h3>
+        <div id="system-test">Carregando sistema...</div>
+        <button onclick="runTest()">Executar Teste</button>
+    </div>
+    
+    <div class="test-area">
+        <h3>Debug Log</h3>
+        <div id="debug-log" style="font-size: 12px; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <script src="iconSystem.js"></script>
+    <script>
+        // Capturar console
+        const debugLog = document.getElementById('debug-log');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            debugLog.innerHTML += `<div style="color: #00ff00;">[LOG] ${args.join(' ')}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            debugLog.innerHTML += `<div style="color: #ff0000;">[ERROR] ${args.join(' ')}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        };
+        
+        setTimeout(() => {
+            if (window.IconSystem) {
+                document.getElementById('system-test').innerHTML = '✅ Sistema carregado! Clique no botão para testar.';
+            } else {
+                document.getElementById('system-test').innerHTML = '❌ Sistema não carregado';
+            }
+        }, 1000);
+        
+        async function runTest() {
+            const testDiv = document.getElementById('system-test');
+            
+            if (!window.IconSystem) {
+                testDiv.innerHTML = '❌ Sistema não disponível';
+                return;
+            }
+            
+            try {
+                console.log('=== INICIANDO TESTE ===');
+                const testText = 'Player com {icon:health} HP baixo';
+                console.log('Texto de teste:', testText);
+                
+                const result = await window.IconSystem.processTextWithIcons(testText);
+                console.log('Resultado:', result);
+                
+                testDiv.innerHTML = `
+                    <strong>Original:</strong> ${testText}<br>
+                    <strong>Processado:</strong> ${result}<br><br>
+                    <strong>Visual:</strong><br>
+                    <div style="background: #000; padding: 10px; border-radius: 3px;">
+                        ${result}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Erro no teste:', error);
+                testDiv.innerHTML = `❌ Erro: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 

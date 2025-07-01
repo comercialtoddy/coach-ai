@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEBUG - Sistema de Ícones</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: monospace;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .debug-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 3px solid #00ff00;
+        }
+        
+        .error {
+            border-left-color: #ff0000;
+            background: rgba(255, 0, 0, 0.1);
+        }
+        
+        .success {
+            border-left-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+        
+        button {
+            background: #333;
+            color: white;
+            border: 1px solid #666;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin: 5px;
+            border-radius: 3px;
+        }
+        
+        button:hover {
+            background: #555;
+        }
+        
+        #result {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            min-height: 100px;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 DEBUG - Sistema de Ícones CS2 Coach AI</h1>
+    
+    <div class="debug-section">
+        <h3>📊 Status do Sistema</h3>
+        <div id="system-status">Carregando...</div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>🧪 Testes Básicos</h3>
+        <button onclick="testIconLoad()">Testar Carregamento Básico</button>
+        <button onclick="testHealthIcon()">Testar {icon:health}</button>
+        <button onclick="testAWPIcon()">Testar {icon:awp}</button>
+        <button onclick="testMultipleIcons()">Testar Múltiplos Ícones</button>
+        <button onclick="checkPaths()">Verificar Caminhos</button>
+    </div>
+    
+    <div class="debug-section">
+        <h3>📺 Resultado</h3>
+        <div id="result"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h3>📝 Log de Console</h3>
+        <div id="console-log" style="max-height: 300px; overflow-y: auto; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        // Capturar logs do console
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const logDiv = document.getElementById('console-log');
+        
+        function addToLog(type, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#ff6666' : type === 'warn' ? '#ffaa66' : '#66ff66';
+            logEntry.textContent = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog('log', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog('error', args.join(' '));
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToLog('warn', args.join(' '));
+        };
+        
+        // Carregar sistema de ícones
+        const script = document.createElement('script');
+        script.src = 'iconSystem.js';
+        script.onload = function() {
+            console.log('✅ iconSystem.js carregado');
+            checkSystemStatus();
+        };
+        script.onerror = function() {
+            console.error('❌ Erro ao carregar iconSystem.js');
+            document.getElementById('system-status').innerHTML = '❌ ERRO: iconSystem.js não carregado';
+        };
+        document.head.appendChild(script);
+        
+        function checkSystemStatus() {
+            const statusDiv = document.getElementById('system-status');
+            
+            if (window.IconSystem) {
+                statusDiv.innerHTML = `
+                    ✅ Sistema carregado<br>
+                    📊 Ícones disponíveis: ${window.IconSystem.getAvailableIcons().length}<br>
+                    🗂️ Categorias: ${Object.keys({
+                        weapons: window.IconSystem.getIconsByCategory('weapons'),
+                        interface: window.IconSystem.getIconsByCategory('interface'),
+                        radar: window.IconSystem.getIconsByCategory('radar')
+                    }).length}
+                `;
+                statusDiv.className = 'debug-section success';
+            } else {
+                statusDiv.innerHTML = '❌ Sistema não disponível';
+                statusDiv.className = 'debug-section error';
+            }
+        }
+        
+        async function testIconLoad() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testando carregamento básico...<br>';
+            
+            if (!window.IconSystem) {
+                result.innerHTML = '❌ Sistema não disponível';
+                return;
+            }
+            
+            try {
+                console.log('Testando carregamento do ícone health...');
+                const svgContent = await window.IconSystem.loadIcon('health');
+                
+                if (svgContent) {
+                    result.innerHTML = `✅ Ícone carregado com sucesso!<br>Conteúdo: ${svgContent.substring(0, 100)}...`;
+                } else {
+                    result.innerHTML = '❌ Falha ao carregar ícone';
+                }
+            } catch (error) {
+                result.innerHTML = `❌ Erro: ${error.message}`;
+                console.error('Erro no teste:', error);
+            }
+        }
+        
+        async function testHealthIcon() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testando {icon:health}...<br>';
+            
+            if (!window.IconSystem) {
+                result.innerHTML = '❌ Sistema não disponível';
+                return;
+            }
+            
+            try {
+                const testText = 'Player com {icon:health} HP baixo';
+                console.log('Processando texto:', testText);
+                
+                const processedText = await window.IconSystem.processTextWithIcons(testText);
+                console.log('Texto processado:', processedText);
+                
+                result.innerHTML = `
+                    <strong>Texto original:</strong> ${testText}<br>
+                    <strong>Texto processado:</strong> ${processedText}<br><br>
+                    <strong>Resultado visual:</strong><br>
+                    <div style="background: #333; padding: 10px; border-radius: 3px;">${processedText}</div>
+                `;
+            } catch (error) {
+                result.innerHTML = `❌ Erro: ${error.message}`;
+                console.error('Erro no teste health:', error);
+            }
+        }
+        
+        async function testAWPIcon() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testando {icon:awp}...<br>';
+            
+            if (!window.IconSystem) {
+                result.innerHTML = '❌ Sistema não disponível';
+                return;
+            }
+            
+            try {
+                const testText = 'Compre {icon:awp} AWP para mid';
+                console.log('Processando texto AWP:', testText);
+                
+                const processedText = await window.IconSystem.processTextWithIcons(testText);
+                console.log('Texto AWP processado:', processedText);
+                
+                result.innerHTML = `
+                    <strong>Texto original:</strong> ${testText}<br>
+                    <strong>Texto processado:</strong> ${processedText}<br><br>
+                    <strong>Resultado visual:</strong><br>
+                    <div style="background: #333; padding: 10px; border-radius: 3px;">${processedText}</div>
+                `;
+            } catch (error) {
+                result.innerHTML = `❌ Erro: ${error.message}`;
+                console.error('Erro no teste AWP:', error);
+            }
+        }
+        
+        async function testMultipleIcons() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Testando múltiplos ícones...<br>';
+            
+            if (!window.IconSystem) {
+                result.innerHTML = '❌ Sistema não disponível';
+                return;
+            }
+            
+            try {
+                const testText = 'Use {icon:awp} AWP e {icon:smoke} smoke para controlar, cuide do {icon:health} HP';
+                console.log('Processando texto múltiplo:', testText);
+                
+                const processedText = await window.IconSystem.processTextWithIcons(testText);
+                console.log('Texto múltiplo processado:', processedText);
+                
+                result.innerHTML = `
+                    <strong>Texto original:</strong> ${testText}<br>
+                    <strong>Texto processado:</strong> ${processedText}<br><br>
+                    <strong>Resultado visual:</strong><br>
+                    <div style="background: #333; padding: 10px; border-radius: 3px;">${processedText}</div>
+                `;
+            } catch (error) {
+                result.innerHTML = `❌ Erro: ${error.message}`;
+                console.error('Erro no teste múltiplo:', error);
+            }
+        }
+        
+        async function checkPaths() {
+            const result = document.getElementById('result');
+            result.innerHTML = 'Verificando caminhos dos arquivos...<br>';
+            
+            const pathsToTest = [
+                './database/icons/health.svg',
+                './database/weapons/awp.svg',
+                './database/weapons/ak47.svg',
+                '../database/icons/health.svg',
+                '../database/weapons/awp.svg'
+            ];
+            
+            let results = '';
+            
+            for (const path of pathsToTest) {
+                try {
+                    const response = await fetch(path);
+                    if (response.ok) {
+                        results += `✅ ${path} - OK (${response.status})<br>`;
+                    } else {
+                        results += `❌ ${path} - ERRO (${response.status})<br>`;
+                    }
+                } catch (error) {
+                    results += `❌ ${path} - ERRO: ${error.message}<br>`;
+                }
+            }
+            
+            result.innerHTML = results;
+        }
+        
+        // Verificar status inicial após 1 segundo
+        setTimeout(checkSystemStatus, 1000);
+    </script>
+</body>
+</html> 

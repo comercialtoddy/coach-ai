@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Resposta Coach AI com Ícones</title>
+    <link rel="stylesheet" href="index.css">
+    <style>
+        body {
+            background: #1a1a1a;
+            padding: 20px;
+        }
+        
+        .test-coach-panel {
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        
+        .test-button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+            font-size: 14px;
+        }
+        
+        .test-button:hover {
+            background: #45a049;
+        }
+        
+        .debug-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <h1>🎮 Teste Completo - Coach AI com Ícones</h1>
+    <p>Simulação da interface real do HUB para testar a integração completa do sistema de ícones.</p>
+    
+    <!-- Replica EXATA da estrutura do HUB original -->
+    <div class="overlay-container">
+        <div class="overlay-layout">
+            <div class="ai-coach-container interactive">
+                <div class="coach-panel">
+                    <div class="coach-header">
+                        <div class="coach-status" id="coach-status"></div>
+                        <div class="coach-title">AI Coach</div>
+                    </div>
+                    <div class="coach-response" id="coach-response">
+                        Aguardando insights do AI Coach...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controles de Teste -->
+    <div class="test-coach-panel">
+        <h3>🧪 Testes de Resposta com Ícones</h3>
+        
+        <button class="test-button" onclick="testSimpleIcon()">
+            Teste Simples: {icon:health}
+        </button>
+        
+        <button class="test-button" onclick="testWeaponIcons()">
+            Teste Armas: AWP + AK47
+        </button>
+        
+        <button class="test-button" onclick="testComplexResponse()">
+            Resposta Complexa
+        </button>
+        
+        <button class="test-button" onclick="testGeminiStyle()">
+            Estilo Gemini
+        </button>
+        
+        <button class="test-button" onclick="clearResponse()">
+            Limpar
+        </button>
+        
+        <div class="debug-info">
+            <strong>📊 Status do Sistema:</strong>
+            <div id="system-debug">Verificando...</div>
+        </div>
+        
+        <div class="debug-info">
+            <strong>📝 Log de Processamento:</strong>
+            <div id="process-log" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <!-- Scripts - MESMA ORDEM DO HUB ORIGINAL -->
+    <script src="iconSystem.js"></script>
+    <script src="shell.js"></script>
+    
+    <script>
+        // Log capture para debug
+        const processLog = document.getElementById('process-log');
+        const originalLog = console.log;
+        const originalError = console.error;
+        
+        function addToProcessLog(type, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#ff6666' : '#66ff66';
+            logEntry.innerHTML = `<small>[${timestamp}]</small> ${message}`;
+            processLog.appendChild(logEntry);
+            processLog.scrollTop = processLog.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToProcessLog('log', args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToProcessLog('error', args.join(' '));
+        };
+        
+        // Aguardar carregamento completo
+        setTimeout(() => {
+            checkSystemStatus();
+        }, 1000);
+        
+        function checkSystemStatus() {
+            const debugDiv = document.getElementById('system-debug');
+            
+            let status = '';
+            
+            // Verificar IconSystem
+            if (window.IconSystem) {
+                status += '✅ IconSystem carregado<br>';
+                status += `📊 ${window.IconSystem.getAvailableIcons().length} ícones disponíveis<br>`;
+            } else {
+                status += '❌ IconSystem não carregado<br>';
+            }
+            
+            // Verificar CoachAI
+            if (window.CoachAI) {
+                status += '✅ CoachAI carregado<br>';
+            } else {
+                status += '❌ CoachAI não carregado<br>';
+            }
+            
+            debugDiv.innerHTML = status;
+        }
+        
+        async function testSimpleIcon() {
+            console.log('=== TESTE SIMPLES ===');
+            const response = 'Player com {icon:health} HP baixo, cuidado!';
+            
+            if (window.CoachAI) {
+                await window.CoachAI.displayResponse(response, 'success');
+            } else {
+                document.getElementById('coach-response').innerHTML = 'ERRO: CoachAI não disponível';
+            }
+        }
+        
+        async function testWeaponIcons() {
+            console.log('=== TESTE ARMAS ===');
+            const response = 'Compre {icon:awp} AWP e {icon:ak47} AK47 para execução';
+            
+            if (window.CoachAI) {
+                await window.CoachAI.displayResponse(response, 'success');
+            } else {
+                document.getElementById('coach-response').innerHTML = 'ERRO: CoachAI não disponível';
+            }
+        }
+        
+        async function testComplexResponse() {
+            console.log('=== TESTE COMPLEXO ===');
+            const response = `Toddyclipsgg, como CT stack {icon:bombsite-a} A site com {icon:awp} AWP. 
+                             Use {icon:smoke} smoke connector para slow push. 
+                             {icon:time} Tempo crítico - coordene {icon:flash} flash support.
+                             Cuidado com {icon:health} HP baixo!`;
+            
+            if (window.CoachAI) {
+                await window.CoachAI.displayResponse(response, 'success');
+            } else {
+                document.getElementById('coach-response').innerHTML = 'ERRO: CoachAI não disponível';
+            }
+        }
+        
+        async function testGeminiStyle() {
+            console.log('=== TESTE ESTILO GEMINI ===');
+            // Simulação de uma resposta típica do Gemini com ícones
+            const response = `Carlos, execute fast {icon:bombsite-b} B com {icon:flash} flashes over wall e {icon:smoke} smoke deep. 
+                             Seu {icon:ak47} AK47 é perfeito para entry. Plante {icon:c4} bomba para default position.`;
+            
+            if (window.CoachAI) {
+                await window.CoachAI.displayResponse(response, 'success');
+            } else {
+                document.getElementById('coach-response').innerHTML = 'ERRO: CoachAI não disponível';
+            }
+        }
+        
+        function clearResponse() {
+            document.getElementById('coach-response').textContent = 'Aguardando insights do AI Coach...';
+            document.getElementById('process-log').innerHTML = '';
+            console.log('=== RESPOSTA LIMPA ===');
+        }
+        
+        // Simular status ativo do coach (igual ao original)
+        document.addEventListener('DOMContentLoaded', () => {
+            const statusElement = document.getElementById('coach-status');
+            if (statusElement) {
+                statusElement.style.background = 'var(--active-primary)';
+            }
+        });
+    </script>
+</body>
+</html> 
