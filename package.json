@@ -9,8 +9,7 @@
     "dev-console": "cross-env NODE_ENV=development DEBUG=* electron .",
     "dev-win": "set NODE_ENV=development&& electron .",
     "build": "electron-builder",
-    "test": "jest",
-    "test:radar": "node src/utils/testRadarAnalysis.js"
+    "test": "jest"
   },
   "keywords": [
     "cs2",
