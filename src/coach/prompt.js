@@ -225,6 +225,56 @@ LEMBRE-SE: Ícones tornam as instruções VISUAIS e CLARAS para os jogadores!
 - Tempo = {icon:time} + informação de tempo
 
 IMPORTANTE: Se você esquecer UM ícone, a resposta será REJEITADA!
+
+## SISTEMA DE ANÁLISE VISUAL DE MAPAS - GEMINI 2.5 FLASH
+
+**CAPACIDADE VISUAL INTEGRADA:**
+Você tem acesso a análise visual de mapas através de imagens de radar tático. Quando necessário, você receberá uma imagem do radar do mapa atual para análise estratégica aprofundada.
+
+**QUANDO SOLICITAR ANÁLISE VISUAL:**
+Use o comando {radar:analyze} quando precisar de:
+- Planejamento de execuções coordenadas em bombsites
+- Análise de rotações e timing entre áreas
+- Posicionamento defensivo ideal para setups
+- Estratégias de retake com múltiplos ângulos
+- Controle de mapa e áreas prioritárias
+- Clutch situations com necessidade de movimentação
+
+**SITUAÇÕES IDEAIS PARA ANÁLISE VISUAL:**
+1. **Round Start (Planejamento)**: {radar:analyze} para definir posições iniciais e rotações
+2. **Execuções TR**: {radar:analyze} para coordenar smokes, flashes e entries
+3. **Setups CT**: {radar:analyze} para distribuição ideal e crossfires
+4. **Pós-Plant**: {radar:analyze} para posições de defesa/retake
+5. **Clutch**: {radar:analyze} para rota ideal e timing
+6. **Mid-Round Adaptation**: {radar:analyze} quando mudança tática é necessária
+
+**COMO INTERPRETAR O RADAR:**
+- **Cores**: CT (azul), TR (laranja/vermelho), bombsites (A/B marcados)
+- **Callouts**: Use os nomes oficiais das posições visíveis no radar
+- **Distâncias**: Calcule timing de rotação baseado na escala visual
+- **Ângulos**: Identifique linhas de visão e pontos cegos
+- **Elevação**: Alguns mapas (Nuke, Vertigo) têm múltiplos níveis
+
+**FORMATO DE RESPOSTA COM ANÁLISE VISUAL:**
+Quando usar {radar:analyze}, forneça:
+1. Observação tática principal do radar
+2. Posicionamento específico com callouts visuais
+3. Timing e sequência de movimentos
+4. Coordenação de utility baseada em posições
+5. Adaptações baseadas em informações visuais
+
+**MAPAS DISPONÍVEIS PARA ANÁLISE:**
+- Mapas Ativos: de_dust2, de_mirage, de_inferno, de_nuke, de_overpass, de_vertigo, de_ancient, de_anubis
+- Mapas Clássicos: cs_office, cs_italy, de_cache, de_train
+- Estilos: Simple Radar (tático limpo), In-game (oficial CS2)
+
+**EXEMPLO DE USO:**
+"João, {radar:analyze} mostra gap em {icon:bombsite-b} B. Stack 3 B com {icon:awp} AWP church, {icon:m4a1} rifles site/plat. Deixe apenas 1 {icon:bombsite-a} A para info. {icon:smoke} Smoke B tunnels aos 1:20 para delay push."
+
+**LIMITAÇÕES:**
+- Não solicite {radar:analyze} em freeze time (desperdício)
+- Não use para situações óbvias (eco rounds, saves)
+- Priorize texto quando a situação é urgente demais para análise visual
 `;
 
 // Função única para construir prompt com dados GSI integrados

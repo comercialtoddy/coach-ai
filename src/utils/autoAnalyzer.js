@@ -101,20 +101,44 @@ class AutoAnalyzer {
         console.log(`[INSIGHT] Processando: ${analysisType}`);
         console.log(`[DEBUG] Game data para insight:`, JSON.stringify(gameData, null, 2));
         
-        const promptData = buildPromptWithGSI(analysisType, gameData);
+        // Verificar se deve incluir análise visual de radar
+        const shouldUseRadar = this.geminiClient.shouldIncludeRadar(analysisType, gameData);
+        console.log(`[DEBUG] Análise visual de radar: ${shouldUseRadar ? 'SIM' : 'NÃO'}`);
         
-        console.log(`[DEBUG] System Prompt Length: ${promptData.systemPrompt.length} chars`);
-        console.log(`[DEBUG] User Prompt: ${promptData.userPrompt}`);
-        console.log(`[DEBUG] Enviando para Gemini...`);
+        let response;
         
-        const response = await this.geminiClient.generateResponse(
-            promptData.userPrompt,
-            promptData.systemPrompt,
-            { maxLength: 150 }
-        );
+        if (shouldUseRadar) {
+            // Usar análise com radar visual
+            console.log(`[RADAR] Incluindo análise visual do mapa para ${analysisType}`);
+            response = await this.geminiClient.analyzeWithRadar(gameData, analysisType, true);
+        } else {
+            // Análise padrão sem visual
+            const promptData = buildPromptWithGSI(analysisType, gameData);
+            
+            console.log(`[DEBUG] System Prompt Length: ${promptData.systemPrompt.length} chars`);
+            console.log(`[DEBUG] User Prompt: ${promptData.userPrompt}`);
+            console.log(`[DEBUG] Enviando para Gemini...`);
+            
+            response = await this.geminiClient.generateResponse(
+                promptData.userPrompt,
+                promptData.systemPrompt,
+                { maxLength: 150 }
+            );
+        }
 
         console.log(`[DEBUG] Resposta completa do Gemini: "${response}"`);
         console.log(`[DEBUG] Tamanho da resposta: ${response ? response.length : 0} chars`);
+        
+        // Verificar se a resposta contém solicitação de análise visual
+        if (response && response.includes('{radar:analyze}')) {
+            console.log(`[RADAR] Gemini solicitou análise visual - reprocessando com radar`);
+            
+            // Reprocessar com análise visual
+            response = await this.geminiClient.analyzeWithRadar(gameData, analysisType, true);
+            
+            // Remover indicador {radar:analyze} da resposta final
+            response = response.replace(/\{radar:analyze\}/g, '');
+        }
         
         if (!response || response.trim().length === 0) {
             console.log(`[ERROR] Gemini retornou resposta vazia para ${analysisType}`);
