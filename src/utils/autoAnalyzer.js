@@ -4,6 +4,8 @@
  */
 
 const { buildPromptWithGSI } = require('../coach/prompt.js');
+const RoundDatabase = require('../database/roundDatabase.js');
+const EventDetector = require('./eventDetector.js');
 
 class AutoAnalyzer {
     constructor(geminiClient, overlayWindow = null) {
@@ -13,6 +15,10 @@ class AutoAnalyzer {
         this.analysisInterval = null;
         this.lastGameState = null;
         this.insightHistory = [];
+        
+        // NOVA: Sistema de banco de dados e detecção de eventos
+        this.roundDatabase = new RoundDatabase();
+        this.eventDetector = new EventDetector(this.roundDatabase);
         
         // NOVA: Tracking do lado do jogador
         this.currentPlayerSide = null;
@@ -30,8 +36,11 @@ class AutoAnalyzer {
         this.insightCooldown = {
             'round_start': 10000,           // 10s
             'bomb_planted': 10000,          // 10s 
+            'bomb_defusing': 5000,          // 5s - NOVO
             'low_health': 10000,            // 10s
+            'critical_health': 8000,        // 8s - NOVO
             'economy_shift': 10000,         // 10s
+            'low_economy': 12000,           // 12s - NOVO
             'match_point': 10000,           // 10s
             'tactical_disadvantage': 15000, // 15s
             'performance_boost': 8000,      // 8s
@@ -39,6 +48,13 @@ class AutoAnalyzer {
             'side_switch': 5000,            // 5s - NOVO: Mudança de lado
             'ct_strategy': 20000,           // 20s - NOVO: Estratégia CT específica
             'tr_strategy': 20000,           // 20s - NOVO: Estratégia TR específica
+            'triple_kill': 5000,            // 5s - NOVO
+            'quad_kill': 5000,              // 5s - NOVO  
+            'ace': 5000,                    // 5s - NOVO
+            'rapid_kills': 8000,            // 8s - NOVO
+            'clutch_situation': 10000,      // 10s - NOVO
+            'round_end': 5000,              // 5s - NOVO
+            'round_summary': 5000,          // 5s - NOVO
             'auto_analysis': 60000          // 60s - Análise periódica
         };
         
@@ -101,7 +117,13 @@ class AutoAnalyzer {
         console.log(`[INSIGHT] Processando: ${analysisType}`);
         console.log(`[DEBUG] Game data para insight:`, JSON.stringify(gameData, null, 2));
         
-        const promptData = buildPromptWithGSI(analysisType, gameData);
+        // NOVO: Adicionar contexto do banco de dados quando relevante
+        let enrichedGameData = { ...gameData };
+        if (this.roundDatabase && this.roundDatabase.currentRound.startTime) {
+            enrichedGameData.roundContext = this.roundDatabase.getAnalysisContext();
+        }
+        
+        const promptData = buildPromptWithGSI(analysisType, enrichedGameData, context);
         
         console.log(`[DEBUG] System Prompt Length: ${promptData.systemPrompt.length} chars`);
         console.log(`[DEBUG] User Prompt: ${promptData.userPrompt}`);
@@ -176,6 +198,24 @@ class AutoAnalyzer {
         
         // NOVA FUNCIONALIDADE: Detectar mudança de lado
         this.updatePlayerSideTracking(gameData);
+        
+        // NOVO: Detectar eventos importantes usando o EventDetector
+        const detectedEvents = this.eventDetector.updateState(gameData);
+        
+        // Processar eventos detectados
+        for (const event of detectedEvents) {
+            console.log(`[EVENT DETECTED] ${event.type} - Priority: ${event.priority}`, event.data);
+            
+            // Análise imediata para eventos críticos
+            if (event.priority === 'critical') {
+                this.queueInsightRequest(event.type, gameData, JSON.stringify(event.data));
+            }
+            
+            // Solicitar resumo do round no final
+            if (event.type === 'round_end' && event.data.needsSummary) {
+                await this.generateRoundSummary(gameData);
+            }
+        }
         
         // Análise estratégica apenas em momentos críticos
         if (this.previousGameData) {
@@ -507,8 +547,58 @@ class AutoAnalyzer {
         };
     }
     
+    // NOVO: Gerar resumo completo do round
+    async generateRoundSummary(gameData) {
+        console.log('[ROUND SUMMARY] Gerando resumo do round...');
+        
+        // Obter contexto completo do banco de dados
+        const roundContext = this.roundDatabase.getAnalysisContext();
+        const roundSummary = this.roundDatabase.getRoundSummary();
+        
+        // Criar prompt especial para resumo do round
+        const summaryPrompt = `
+RESUMO COMPLETO DO ROUND ${roundContext.roundNumber}
+
+${roundSummary}
+
+CONTEXTO ADICIONAL:
+- Performance Geral: ${roundContext.overallStats.kd} K/D, ${roundContext.overallStats.winRate}% Win Rate
+- Clutch Rate: ${roundContext.overallStats.clutchRate}%
+- Padrões Detectados: ${roundContext.patterns.join(', ') || 'Nenhum'}
+
+DADOS DO ROUND:
+- Duração: ${Math.round(roundContext.roundDuration)}s
+- Kills: ${roundContext.currentKills}
+- Deaths: ${roundContext.currentDeaths}
+- Dano Total: ${roundContext.currentDamage}
+- Eventos Importantes: ${roundContext.importantEvents.length}
+
+Com base em todos esses dados, forneça:
+1. RESUMO EXECUTIVO do round (o que aconteceu)
+2. PONTOS POSITIVOS (o que foi bem executado)
+3. PONTOS DE MELHORIA (o que pode ser aprimorado)
+4. LIÇÕES APRENDIDAS (insights táticos para próximos rounds)
+5. RECOMENDAÇÃO ESTRATÉGICA para o próximo round
+`;
+        
+        // Usar fila com prioridade máxima para resumo
+        this.queueInsightRequest('round_summary', gameData, summaryPrompt);
+    }
+    
+    // NOVO: Método para obter estatísticas em tempo real
+    getRealtimeStats() {
+        return {
+            database: this.roundDatabase.getAnalysisContext(),
+            currentRound: this.roundDatabase.currentRound,
+            playerStats: this.roundDatabase.playerStats,
+            patterns: this.roundDatabase.patterns
+        };
+    }
+    
     destroy() {
         this.stopPeriodicAnalysis();
+        this.requestQueue = [];
+        this.roundDatabase.reset();
         console.log('[SHUTDOWN] Auto Analyzer finalizado');
     }
 }

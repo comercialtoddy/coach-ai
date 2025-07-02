@@ -235,7 +235,7 @@ IMPORTANTE: Se você esquecer UM ícone, a resposta será REJEITADA!
 `;
 
 // Função única para construir prompt com dados GSI integrados
-function buildPromptWithGSI(analysisType, gameData) {
+function buildPromptWithGSI(analysisType, gameData, context = '') {
     const gsiData = formatGSIData(gameData);
     
     let userMessage = '';
@@ -288,6 +288,42 @@ function buildPromptWithGSI(analysisType, gameData) {
             
         case 'economy_warning':
             userMessage = `ALERTA ECONÔMICO\n${gsiData}\nESTRATÉGIA ECO/FORCE BUY BASEADA NO LADO`;
+            break;
+            
+        case 'triple_kill':
+            userMessage = `TRIPLE KILL DETECTADO!\n${gsiData}\nCOMO CAPITALIZAR VANTAGEM E MANTER MOMENTUM`;
+            break;
+            
+        case 'quad_kill':
+            userMessage = `QUAD KILL INCRÍVEL!\n${gsiData}\nESTRATÉGIA PARA FINALIZAR ROUND COM EXCELÊNCIA`;
+            break;
+            
+        case 'ace':
+            userMessage = `ACE CONQUISTADO!\n${gsiData}\nANÁLISE DO DESEMPENHO E LIÇÕES TÁTICAS`;
+            break;
+            
+        case 'critical_health':
+            userMessage = `HP CRÍTICO (< 15)\n${gsiData}\nESTRATÉGIA EMERGENCIAL DE SOBREVIVÊNCIA`;
+            break;
+            
+        case 'round_summary':
+            userMessage = `ANÁLISE COMPLETA DO ROUND\n${gsiData}\n${context}`;
+            break;
+            
+        case 'clutch_situation':
+            userMessage = `SITUAÇÃO DE CLUTCH DETECTADA\n${gsiData}\nESTRATÉGIA PARA ${context}`;
+            break;
+            
+        case 'bomb_defusing':
+            userMessage = `DEFUSE EM ANDAMENTO\n${gsiData}\nTÁTICA DE COBERTURA E POSICIONAMENTO`;
+            break;
+            
+        case 'rapid_kills':
+            userMessage = `KILLS RÁPIDAS CONSECUTIVAS\n${gsiData}\nMANTER PRESSÃO E CONTROLE DO MAPA`;
+            break;
+            
+        case 'round_end':
+            userMessage = `ROUND FINALIZADO\n${gsiData}\nPREPARAÇÃO MENTAL PARA PRÓXIMO ROUND`;
             break;
             
         case 'auto_analysis':
@@ -399,6 +435,29 @@ function formatGSIData(gameData) {
             if (teamComposition) {
                 gsiContext += `COMPOSIÇÃO: CT ${teamComposition.ct.alive}/${teamComposition.ct.total} vs T ${teamComposition.t.alive}/${teamComposition.t.total}\n`;
             }
+        }
+    }
+    
+    // NOVO: Adicionar contexto do banco de dados se disponível
+    if (gameData.roundContext) {
+        const ctx = gameData.roundContext;
+        gsiContext += `\n=== CONTEXTO DO ROUND ===\n`;
+        gsiContext += `PERFORMANCE ATUAL: ${ctx.currentKills}K/${ctx.currentDeaths}D - ${ctx.currentDamage} DMG\n`;
+        gsiContext += `ESTATÍSTICAS GERAIS: ${ctx.overallStats.kd} K/D, ${ctx.overallStats.winRate}% Win Rate\n`;
+        
+        if (ctx.importantEvents.length > 0) {
+            gsiContext += `EVENTOS IMPORTANTES: ${ctx.importantEvents.join(' | ')}\n`;
+        }
+        
+        if (ctx.recentHistory.length > 0) {
+            gsiContext += `HISTÓRICO RECENTE:\n`;
+            ctx.recentHistory.forEach(r => {
+                gsiContext += `  Round ${r.round}: ${r.result} (${r.kills}K/${r.deaths}D)\n`;
+            });
+        }
+        
+        if (ctx.patterns.length > 0) {
+            gsiContext += `PADRÕES DETECTADOS: ${ctx.patterns.join(', ')}\n`;
         }
     }
     
