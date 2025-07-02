@@ -343,4 +343,302 @@ html, body {
   white-space: nowrap;
   z-index: 1000;
   pointer-events: none;
+}
+
+/* ===== GEMINI VISUAL ANALYSIS INDICATOR ===== */
+
+.analysis-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    border: 2px solid #4285f4;
+    border-radius: 12px;
+    padding: 16px 20px;
+    
+    box-shadow: 
+        0 8px 32px rgba(66, 133, 244, 0.3),
+        0 0 20px rgba(66, 133, 244, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    min-width: 280px;
+    
+    transform: translateX(320px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.analysis-indicator.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.analysis-indicator.hidden {
+    transform: translateX(320px);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.analysis-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* ===== ANALYSIS ICON ANIMATIONS ===== */
+
+.analysis-icon {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Radar Scanning Animation */
+.radar-scanning {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border: 3px solid transparent;
+    border-top: 3px solid #4285f4;
+    border-right: 3px solid #34a853;
+    border-radius: 50%;
+    
+    animation: radarScan 2s linear infinite;
+    opacity: 0.8;
+}
+
+.radar-scanning::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 2px solid transparent;
+    border-top: 2px solid rgba(66, 133, 244, 0.3);
+    border-radius: 50%;
+    animation: radarScan 3s linear infinite reverse;
+}
+
+@keyframes radarScan {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Gemini Eye */
+.gemini-eye {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    
+    background: radial-gradient(circle, #4285f4 0%, #1a73e8 70%, #0d47a1 100%);
+    border-radius: 50%;
+    
+    animation: geminiPulse 1.5s ease-in-out infinite alternate;
+    
+    box-shadow: 
+        0 0 8px rgba(66, 133, 244, 0.6),
+        0 0 16px rgba(66, 133, 244, 0.3),
+        inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.gemini-eye::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    width: 12px;
+    height: 12px;
+    
+    background: radial-gradient(circle, #ffffff 0%, #e3f2fd 100%);
+    border-radius: 50%;
+    
+    animation: eyeGlow 2s ease-in-out infinite;
+}
+
+@keyframes geminiPulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 
+            0 0 8px rgba(66, 133, 244, 0.6),
+            0 0 16px rgba(66, 133, 244, 0.3);
+    }
+    100% { 
+        transform: scale(1.1);
+        box-shadow: 
+            0 0 12px rgba(66, 133, 244, 0.8),
+            0 0 24px rgba(66, 133, 244, 0.5);
+    }
+}
+
+@keyframes eyeGlow {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+/* ===== ANALYSIS TEXT ===== */
+
+.analysis-text {
+    flex: 1;
+    color: #ffffff;
+}
+
+.analysis-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4285f4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+    
+    text-shadow: 0 0 8px rgba(66, 133, 244, 0.4);
+}
+
+.analysis-subtitle {
+    font-size: 11px;
+    color: #b0bec5;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+/* ===== PROGRESS BAR ===== */
+
+.analysis-progress {
+    position: relative;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    
+    background: linear-gradient(90deg, 
+        #4285f4 0%, 
+        #34a853 25%, 
+        #fbbc04 50%, 
+        #ea4335 75%, 
+        #4285f4 100%);
+    
+    border-radius: 2px;
+    
+    animation: progressFlow 3s linear infinite;
+    
+    box-shadow: 0 0 6px rgba(66, 133, 244, 0.5);
+}
+
+@keyframes progressFlow {
+    0% { 
+        width: 0%; 
+        transform: translateX(-100%);
+    }
+    50% { 
+        width: 100%; 
+        transform: translateX(0%);
+    }
+    100% { 
+        width: 100%; 
+        transform: translateX(100%);
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+@media (max-width: 768px) {
+    .analysis-indicator {
+        top: 10px;
+        right: 10px;
+        min-width: 240px;
+        padding: 12px 16px;
+    }
+    
+    .analysis-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .radar-scanning {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .gemini-eye {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .analysis-title {
+        font-size: 12px;
+    }
+    
+    .analysis-subtitle {
+        font-size: 10px;
+    }
+}
+
+/* ===== HOVER EFFECTS ===== */
+
+.analysis-indicator:hover {
+    transform: translateX(0) scale(1.02);
+    box-shadow: 
+        0 12px 40px rgba(66, 133, 244, 0.4),
+        0 0 30px rgba(66, 133, 244, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.analysis-indicator:hover .gemini-eye {
+    animation-duration: 0.8s;
+}
+
+.analysis-indicator:hover .radar-scanning {
+    animation-duration: 1.2s;
+}
+
+/* ===== ESTADOS ESPECIAIS ===== */
+
+.analysis-indicator.processing {
+    border-color: #34a853;
+    box-shadow: 
+        0 8px 32px rgba(52, 168, 83, 0.3),
+        0 0 20px rgba(52, 168, 83, 0.2);
+}
+
+.analysis-indicator.processing .analysis-title {
+    color: #34a853;
+    text-shadow: 0 0 8px rgba(52, 168, 83, 0.4);
+}
+
+.analysis-indicator.error {
+    border-color: #ea4335;
+    box-shadow: 
+        0 8px 32px rgba(234, 67, 53, 0.3),
+        0 0 20px rgba(234, 67, 53, 0.2);
+}
+
+.analysis-indicator.error .analysis-title {
+    color: #ea4335;
+    text-shadow: 0 0 8px rgba(234, 67, 53, 0.4);
+}
+
+/* ===== INTEGRAÇÃO COM TEMA EXISTENTE ===== */
+
+.ai-coach-container.analyzing {
+    filter: brightness(0.8);
+    transition: filter 0.3s ease;
+}
+
+.ai-coach-container.analyzing .coach-response {
+    opacity: 0.6;
 } 

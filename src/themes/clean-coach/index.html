@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS2 Coach AI - Competitive Overlay</title>
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="vars/colors.css">
+    <link rel="stylesheet" href="vars/sizes.css">
     <style>
         /* Configurações específicas para overlay transparente */
         html, body {
@@ -40,6 +42,34 @@
 
                     <!-- REMOVIDO: Área de Input de Texto -->
 
+                </div>
+
+                <!-- Visual Indicator para Análise do Gemini -->
+                <div id="gemini-analysis-indicator" class="analysis-indicator hidden">
+                    <div class="analysis-content">
+                        <div class="analysis-icon">
+                            <div class="radar-scanning"></div>
+                            <div class="gemini-eye"></div>
+                        </div>
+                        <div class="analysis-text">
+                            <div class="analysis-title">GEMINI ANALYZING</div>
+                            <div class="analysis-subtitle">Visual Radar Analysis</div>
+                            <div class="analysis-progress">
+                                <div class="progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Área principal de resposta -->
+                <div id="response-area">
+                    <div id="response-text"></div>
+                </div>
+
+                <!-- Debug info (se necessário) -->
+                <div id="debug-info" style="display: none;">
+                    <div id="gsi-status">GSI: Disconnected</div>
+                    <div id="last-update">Last Update: Never</div>
                 </div>
 
             </div>

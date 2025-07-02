@@ -226,11 +226,17 @@ class GeminiClient {
         try {
             // Verificar se deve incluir análise visual
             if (!includeRadar || !gameData?.map) {
+                // Indicar análise de texto
+                this.notifyAnalysisStart('text');
+                
                 // Análise padrão sem visual
-                return await this.generateResponse(
+                const result = await this.generateResponse(
                     buildPromptWithGSI(analysisType, gameData).userPrompt,
                     buildPromptWithGSI(analysisType, gameData).systemPrompt
                 );
+                
+                this.notifyAnalysisEnd();
+                return result;
             }
             
             // Extrair nome do mapa
@@ -240,11 +246,19 @@ class GeminiClient {
                 
             if (!mapName) {
                 console.warn('[GeminiClient] Map name not found in game data');
-                return await this.generateResponse(
+                this.notifyAnalysisStart('text');
+                
+                const result = await this.generateResponse(
                     buildPromptWithGSI(analysisType, gameData).userPrompt,
                     buildPromptWithGSI(analysisType, gameData).systemPrompt
                 );
+                
+                this.notifyAnalysisEnd();
+                return result;
             }
+            
+            // Indicar início de análise visual
+            this.notifyAnalysisStart('visual', mapName);
             
             // Preparar imagem do radar
             const radarImage = await this.radarManager.prepareImageForGemini(mapName, 'simpleradar');
@@ -252,11 +266,18 @@ class GeminiClient {
             if (!radarImage) {
                 console.warn(`[GeminiClient] Radar image not found for map: ${mapName}`);
                 // Fallback para análise sem visual
-                return await this.generateResponse(
+                this.notifyAnalysisStart('text'); // Atualizar tipo
+                
+                const result = await this.generateResponse(
                     buildPromptWithGSI(analysisType, gameData).userPrompt,
                     buildPromptWithGSI(analysisType, gameData).systemPrompt
                 );
+                
+                this.notifyAnalysisEnd();
+                return result;
             }
+            
+            console.log(`[VISUAL] Iniciando análise visual para ${mapName}`);
             
             // Construir prompt especializado com contexto visual
             const visualPrompt = this.buildVisualAnalysisPrompt(gameData, analysisType, radarImage.metadata);
@@ -267,20 +288,37 @@ class GeminiClient {
                 radarImage.inlineData
             ];
             
+            // Indicar processamento
+            this.notifyAnalysisProcessing();
+            
             // Gerar resposta com análise visual
             const result = await this.model.generateContent(contents);
             const response = result.response.text();
             
+            console.log(`[VISUAL] Análise visual concluída para ${mapName}`);
+            
             // Processar resposta com limite aumentado para análise visual
-            return this.processResponse(response, { maxLength: 250 });
+            const processedResponse = this.processResponse(response, { maxLength: 250 });
+            
+            this.notifyAnalysisEnd();
+            return processedResponse;
             
         } catch (error) {
             console.error('[ERROR] Error in radar analysis:', error);
+            this.notifyAnalysisError(error.message);
+            
             // Fallback para análise sem visual
-            return await this.generateResponse(
-                buildPromptWithGSI(analysisType, gameData).userPrompt,
-                buildPromptWithGSI(analysisType, gameData).systemPrompt
-            );
+            try {
+                const fallbackResult = await this.generateResponse(
+                    buildPromptWithGSI(analysisType, gameData).userPrompt,
+                    buildPromptWithGSI(analysisType, gameData).systemPrompt
+                );
+                this.notifyAnalysisEnd();
+                return fallbackResult;
+            } catch (fallbackError) {
+                this.notifyAnalysisError('Analysis failed');
+                throw fallbackError;
+            }
         }
     }
     
@@ -357,6 +395,92 @@ class GeminiClient {
     // REMOVIDO: Não parsear tips mockados
     
     // REMOVIDO: Não usar tips padrão mockados
+    
+    // Métodos de notificação para o indicador visual
+    notifyAnalysisStart(type, mapName = '') {
+        console.log(`[GEMINI] Iniciando análise ${type}${mapName ? ` para ${mapName}` : ''}`);
+        
+        // Emitir evento para overlay
+        if (typeof window !== 'undefined' && window.CoachAI) {
+            if (type === 'visual') {
+                window.CoachAI.startVisualAnalysis(mapName);
+            } else {
+                window.CoachAI.startTextAnalysis();
+            }
+        }
+        
+        // Emitir para main process se disponível
+        if (typeof window !== 'undefined' && window.require) {
+            try {
+                const { ipcRenderer } = window.require('electron');
+                ipcRenderer.send('analysis-status', {
+                    type: 'start',
+                    analysisType: type,
+                    mapName
+                });
+            } catch (e) {
+                // Not in Electron context
+            }
+        }
+    }
+    
+    notifyAnalysisProcessing() {
+        console.log('[GEMINI] Processando análise...');
+        
+        if (typeof window !== 'undefined' && window.GeminiIndicator) {
+            window.GeminiIndicator.setState('processing');
+        }
+        
+        if (typeof window !== 'undefined' && window.require) {
+            try {
+                const { ipcRenderer } = window.require('electron');
+                ipcRenderer.send('analysis-status', {
+                    type: 'processing'
+                });
+            } catch (e) {
+                // Not in Electron context
+            }
+        }
+    }
+    
+    notifyAnalysisEnd() {
+        console.log('[GEMINI] Análise concluída');
+        
+        if (typeof window !== 'undefined' && window.GeminiIndicator) {
+            window.GeminiIndicator.complete();
+        }
+        
+        if (typeof window !== 'undefined' && window.require) {
+            try {
+                const { ipcRenderer } = window.require('electron');
+                ipcRenderer.send('analysis-status', {
+                    type: 'complete'
+                });
+            } catch (e) {
+                // Not in Electron context
+            }
+        }
+    }
+    
+    notifyAnalysisError(errorMessage = '') {
+        console.log('[GEMINI] Erro na análise:', errorMessage);
+        
+        if (typeof window !== 'undefined' && window.CoachAI) {
+            window.CoachAI.showAnalysisError(errorMessage);
+        }
+        
+        if (typeof window !== 'undefined' && window.require) {
+            try {
+                const { ipcRenderer } = window.require('electron');
+                ipcRenderer.send('analysis-status', {
+                    type: 'error',
+                    message: errorMessage
+                });
+            } catch (e) {
+                // Not in Electron context
+            }
+        }
+    }
     
     // Limpeza e estatísticas
     clearHistory() {

@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS2 Coach AI - Teste do Indicador Visual</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="vars/colors.css">
+    <link rel="stylesheet" href="vars/sizes.css">
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .test-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .test-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .test-btn {
+            background: linear-gradient(135deg, #4285f4, #34a853);
+            border: none;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .test-btn.danger {
+            background: linear-gradient(135deg, #ea4335, #ff6b6b);
+        }
+        
+        .test-btn.warning {
+            background: linear-gradient(135deg, #fbbc04, #ff9500);
+        }
+        
+        .test-info {
+            background: rgba(66, 133, 244, 0.1);
+            border: 1px solid #4285f4;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .logs {
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .log-entry.success { color: #34a853; }
+        .log-entry.error { color: #ea4335; }
+        .log-entry.warning { color: #fbbc04; }
+        .log-entry.info { color: #4285f4; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🎯 CS2 Coach AI - Teste do Indicador Visual</h1>
+            <p>Teste todas as animações e estados do indicador do Gemini</p>
+        </div>
+        
+        <div class="test-info">
+            <h3>📋 Como Funciona:</h3>
+            <ul>
+                <li><strong>Análise Visual:</strong> Mostra radar girando + olho do Gemini quando analisando imagens</li>
+                <li><strong>Análise de Texto:</strong> Indicador mais simples para análise sem imagem</li>
+                <li><strong>Estados:</strong> Analyzing → Processing → Complete</li>
+                <li><strong>Erro:</strong> Estado de erro com auto-hide</li>
+            </ul>
+        </div>
+        
+        <div class="test-buttons">
+            <button class="test-btn" onclick="testVisualAnalysis()">
+                🗺️ Análise Visual (Mirage)
+            </button>
+            
+            <button class="test-btn" onclick="testTextAnalysis()">
+                📝 Análise de Texto
+            </button>
+            
+            <button class="test-btn warning" onclick="testProgressStates()">
+                ⚡ Sequência Completa
+            </button>
+            
+            <button class="test-btn danger" onclick="testError()">
+                ❌ Teste de Erro
+            </button>
+            
+            <button class="test-btn" onclick="testMultipleSequences()">
+                🔄 Múltiplas Análises
+            </button>
+            
+            <button class="test-btn" onclick="clearLogs()">
+                🧹 Limpar Logs
+            </button>
+        </div>
+        
+        <div class="logs" id="logs">
+            <div class="log-entry info">Sistema de teste iniciado. Clique nos botões para testar o indicador visual.</div>
+        </div>
+    </div>
+
+    <!-- Visual Indicator para Análise do Gemini -->
+    <div id="gemini-analysis-indicator" class="analysis-indicator hidden">
+        <div class="analysis-content">
+            <div class="analysis-icon">
+                <div class="radar-scanning"></div>
+                <div class="gemini-eye"></div>
+            </div>
+            <div class="analysis-text">
+                <div class="analysis-title">GEMINI ANALYZING</div>
+                <div class="analysis-subtitle">Visual Radar Analysis</div>
+                <div class="analysis-progress">
+                    <div class="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="iconSystem.js"></script>
+    <script src="shell.js"></script>
+    
+    <script>
+        // Logs do teste
+        function addLog(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(entry);
+            logs.scrollTop = logs.scrollHeight;
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+            addLog('Logs limpos', 'info');
+        }
+        
+        // Testes do indicador
+        function testVisualAnalysis() {
+            addLog('Iniciando teste de análise visual...', 'info');
+            
+            if (window.GeminiIndicator) {
+                window.GeminiIndicator.showVisualAnalysis('de_mirage');
+                addLog('Indicador visual mostrado para de_mirage', 'success');
+                
+                // Simular progressão
+                setTimeout(() => {
+                    window.GeminiIndicator.setState('processing');
+                    addLog('Estado alterado para: processing', 'warning');
+                }, 2000);
+                
+                setTimeout(() => {
+                    window.GeminiIndicator.complete();
+                    addLog('Análise visual concluída', 'success');
+                }, 4000);
+            } else {
+                addLog('GeminiIndicator não encontrado!', 'error');
+            }
+        }
+        
+        function testTextAnalysis() {
+            addLog('Iniciando teste de análise de texto...', 'info');
+            
+            if (window.GeminiIndicator) {
+                window.GeminiIndicator.showTextAnalysis();
+                addLog('Indicador de texto mostrado', 'success');
+                
+                setTimeout(() => {
+                    window.GeminiIndicator.complete();
+                    addLog('Análise de texto concluída', 'success');
+                }, 3000);
+            } else {
+                addLog('GeminiIndicator não encontrado!', 'error');
+            }
+        }
+        
+        function testProgressStates() {
+            addLog('Testando sequência completa de estados...', 'info');
+            
+            if (!window.GeminiIndicator) {
+                addLog('GeminiIndicator não encontrado!', 'error');
+                return;
+            }
+            
+            const sequence = [
+                { delay: 0, action: () => {
+                    window.GeminiIndicator.showVisualAnalysis('de_dust2');
+                    addLog('1. Iniciando análise visual (de_dust2)', 'info');
+                }},
+                { delay: 1500, action: () => {
+                    window.GeminiIndicator.setState('processing');
+                    addLog('2. Processando estratégia...', 'warning');
+                }},
+                { delay: 3000, action: () => {
+                    window.GeminiIndicator.setState('completing');
+                    addLog('3. Finalizando análise...', 'warning');
+                }},
+                { delay: 4000, action: () => {
+                    window.GeminiIndicator.hide();
+                    addLog('4. Sequência concluída!', 'success');
+                }}
+            ];
+            
+            sequence.forEach(step => {
+                setTimeout(step.action, step.delay);
+            });
+        }
+        
+        function testError() {
+            addLog('Testando estado de erro...', 'warning');
+            
+            if (window.GeminiIndicator) {
+                window.GeminiIndicator.showError('Rate limit exceeded - Trying again in 60s');
+                addLog('Estado de erro mostrado (auto-hide em 3s)', 'error');
+            } else {
+                addLog('GeminiIndicator não encontrado!', 'error');
+            }
+        }
+        
+        function testMultipleSequences() {
+            addLog('Testando múltiplas análises em sequência...', 'info');
+            
+            if (!window.GeminiIndicator) {
+                addLog('GeminiIndicator não encontrado!', 'error');
+                return;
+            }
+            
+            const maps = ['de_mirage', 'de_dust2', 'de_inferno'];
+            let currentMap = 0;
+            
+            function runNextAnalysis() {
+                if (currentMap >= maps.length) {
+                    addLog('Todas as análises concluídas!', 'success');
+                    return;
+                }
+                
+                const map = maps[currentMap];
+                addLog(`Analisando ${map}...`, 'info');
+                
+                window.GeminiIndicator.showVisualAnalysis(map);
+                
+                setTimeout(() => {
+                    window.GeminiIndicator.complete();
+                    currentMap++;
+                    
+                    setTimeout(() => {
+                        runNextAnalysis();
+                    }, 1000);
+                }, 2500);
+            }
+            
+            runNextAnalysis();
+        }
+        
+        // Aguardar carregamento
+        document.addEventListener('DOMContentLoaded', () => {
+            addLog('Página de teste carregada', 'success');
+            
+            if (window.GeminiIndicator) {
+                addLog('GeminiIndicator detectado e pronto', 'success');
+            } else {
+                addLog('Aguardando GeminiIndicator...', 'warning');
+                
+                setTimeout(() => {
+                    if (window.GeminiIndicator) {
+                        addLog('GeminiIndicator carregado com sucesso!', 'success');
+                    } else {
+                        addLog('GeminiIndicator não foi carregado - verifique shell.js', 'error');
+                    }
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html> 
