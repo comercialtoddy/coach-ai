@@ -9,10 +9,7 @@
     "dev-console": "cross-env NODE_ENV=development DEBUG=* electron .",
     "dev-win": "set NODE_ENV=development&& electron .",
     "build": "electron-builder",
-    "test": "jest",
-    "test-team-chat": "node src/utils/testTeamChat.js",
-    "test-clean-messages": "node src/utils/testCleanMessages.js",
-    "test-icons": "echo 'Abra src/themes/clean-coach/testNoColchetes.html no navegador para testar ícones'"
+    "test": "jest"
   },
   "keywords": [
     "cs2",

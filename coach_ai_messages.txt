@@ -1,0 +1,3 @@
+[Coach AI] Sistema ativo - Análise em tempo real
+[Coach AI] Use F9-F11 para mensagens rápidas
+[Coach AI] Console: echo para debug
