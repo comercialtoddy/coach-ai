@@ -1,0 +1,561 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 💎 COMMERCIAL QUALITY STANDARDS - TIER 1
+
+## **PADRÕES DE QUALIDADE COMERCIAL OBRIGATÓRIOS**
+
+### 🎯 **MENTALIDADE: PRODUTO COMERCIAL, NÃO PROTÓTIPO**
+
+Este é um **produto comercial Tier 1** destinado a:
+- **Equipes profissionais** de CS2
+- **Jogadores competitivos** (Faceit Level 8+)
+- **Organizações esportivas** pagantes
+
+**Cada linha de código deve atender padrões de produção comercial.**
+
+## **⚡ PERFORMANCE REQUIREMENTS**
+
+### **📊 MÉTRICAS OBRIGATÓRIAS**
+
+| Operação | Tempo Máximo | Critério |
+|----------|--------------|----------|
+| **Análise GSI** | < 50ms | Tempo real crítico |
+| **API Requests** | < 2000ms | Timeout padrão |
+| **Cache Hit** | < 10ms | Performance de cache |
+| **IA Response** | < 5000ms | Resposta Gemini |
+| **Database Query** | < 100ms | Operações locais |
+| **Overlay Render** | < 16ms | 60 FPS smooth |
+
+### **✅ IMPLEMENTAÇÃO DE PERFORMANCE:**
+
+```javascript
+// OBRIGATÓRIO - Medir performance de funções críticas
+class PerformantService {
+    async criticalOperation(data) {
+        const startTime = performance.now();
+        
+        try {
+            const result = await this.processData(data);
+            
+            const duration = performance.now() - startTime;
+            
+            // Log performance para monitoramento
+            console.log(`[PERFORMANCE] criticalOperation: ${duration.toFixed(2)}ms`);
+            
+            // Alert se exceder threshold
+            if (duration > 50) {
+                console.warn(`[PERFORMANCE WARNING] Operação lenta: ${duration.toFixed(2)}ms`);
+            }
+            
+            return result;
+        } catch (error) {
+            const duration = performance.now() - startTime;
+            console.error(`[PERFORMANCE ERROR] Falha após ${duration.toFixed(2)}ms:`, error);
+            throw error;
+        }
+    }
+}
+```
+
+### **⚡ OTIMIZAÇÃO OBRIGATÓRIA:**
+
+```javascript
+// Cache inteligente para dados frequentes
+class OptimizedDataService {
+    constructor() {
+        this.cache = new Map();
+        this.cacheExpiry = new Map();
+    }
+    
+    async getData(key) {
+        // 1. Verificar cache primeiro
+        if (this.isCached(key)) {
+            console.log(`[CACHE HIT] ${key}`);
+            return this.cache.get(key);
+        }
+        
+        // 2. Buscar dados com timeout
+        const data = await Promise.race([
+            this.fetchData(key),
+            this.timeoutPromise(2000) // 2s timeout
+        ]);
+        
+        // 3. Cache resultado
+        this.setCache(key, data, 300000); // 5min TTL
+        
+        return data;
+    }
+    
+    timeoutPromise(ms) {
+        return new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), ms)
+        );
+    }
+}
+```
+
+## **🛡️ ERROR HANDLING & RESILIENCE**
+
+### **📋 CATEGORIAS DE ERRO OBRIGATÓRIAS:**
+
+```javascript
+// SISTEMA DE ERROS ESTRUTURADO
+class APIError extends Error {
+    constructor(message, statusCode, retryable = false) {
+        super(message);
+        this.name = 'APIError';
+        this.statusCode = statusCode;
+        this.retryable = retryable;
+        this.timestamp = new Date().toISOString();
+    }
+}
+
+class ValidationError extends Error {
+    constructor(field, value, expected) {
+        super(`Validation failed for ${field}: expected ${expected}, got ${value}`);
+        this.name = 'ValidationError';
+        this.field = field;
+        this.value = value;
+        this.expected = expected;
+    }
+}
+
+class ServiceUnavailableError extends Error {
+    constructor(service, reason) {
+        super(`Service ${service} unavailable: ${reason}`);
+        this.name = 'ServiceUnavailableError';
+        this.service = service;
+        this.reason = reason;
+        this.retryAfter = 30000; // 30s
+    }
+}
+```
+
+### **✅ IMPLEMENTAÇÃO DE RESILIENCE:**
+
+```javascript
+class ResilientService {
+    constructor() {
+        this.maxRetries = 3;
+        this.backoffMultiplier = 2;
+        this.baseDelay = 1000;
+    }
+    
+    async executeWithRetry(operation, context = '') {
+        let lastError;
+        
+        for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+            try {
+                const result = await operation();
+                
+                if (attempt > 0) {
+                    console.log(`[RECOVERY] ${context} succeeded on attempt ${attempt + 1}`);
+                }
+                
+                return result;
+            } catch (error) {
+                lastError = error;
+                
+                console.warn(`[RETRY] ${context} failed on attempt ${attempt + 1}:`, error.message);
+                
+                // Não retry para alguns tipos de erro
+                if (error instanceof ValidationError || 
+                    error.statusCode === 401 || 
+                    error.statusCode === 403) {
+                    throw error;
+                }
+                
+                // Calcular delay para próxima tentativa
+                if (attempt < this.maxRetries) {
+                    const delay = this.baseDelay * Math.pow(this.backoffMultiplier, attempt);
+                    await this.sleep(delay);
+                }
+            }
+        }
+        
+        console.error(`[RETRY FAILED] ${context} failed after ${this.maxRetries + 1} attempts`);
+        throw lastError;
+    }
+    
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+}
+```
+
+## **📝 LOGGING & MONITORING STANDARDS**
+
+### **✅ ESTRUTURA DE LOG PADRONIZADA:**
+
+```javascript
+class Logger {
+    static info(service, operation, data = {}) {
+        console.log(`[${service.toUpperCase()}] ${operation}`, {
+            timestamp: new Date().toISOString(),
+            level: 'INFO',
+            ...data
+        });
+    }
+    
+    static warn(service, operation, warning, data = {}) {
+        console.warn(`[${service.toUpperCase()}] WARNING: ${operation}`, {
+            timestamp: new Date().toISOString(),
+            level: 'WARN',
+            warning,
+            ...data
+        });
+    }
+    
+    static error(service, operation, error, data = {}) {
+        console.error(`[${service.toUpperCase()}] ERROR: ${operation}`, {
+            timestamp: new Date().toISOString(),
+            level: 'ERROR',
+            message: error.message,
+            stack: error.stack,
+            ...data
+        });
+    }
+    
+    static performance(service, operation, duration, threshold = 100) {
+        const level = duration > threshold ? 'WARN' : 'INFO';
+        const message = `[${service.toUpperCase()}] PERFORMANCE: ${operation} took ${duration.toFixed(2)}ms`;
+        
+        if (level === 'WARN') {
+            console.warn(message + ' (SLOW)');
+        } else {
+            console.log(message);
+        }
+    }
+}
+
+// USO OBRIGATÓRIO:
+Logger.info('tracker-api', 'Fetching player data', { steamId: '12345' });
+Logger.performance('gemini-client', 'Generate response', 1250, 1000);
+Logger.error('database', 'Query failed', error, { query: 'SELECT * FROM rounds' });
+```
+
+## **🔒 SECURITY & DATA PROTECTION**
+
+### **✅ VALIDAÇÃO DE ENTRADA OBRIGATÓRIA:**
+
+```javascript
+class InputValidator {
+    static validateSteamId(steamId) {
+        if (!steamId || typeof steamId !== 'string') {
+            throw new ValidationError('steamId', steamId, 'non-empty string');
+        }
+        
+        if (!/^\d{17}$/.test(steamId)) {
+            throw new ValidationError('steamId', steamId, '17-digit Steam ID');
+        }
+        
+        return steamId;
+    }
+    
+    static validateGameData(gameData) {
+        if (!gameData || typeof gameData !== 'object') {
+            throw new ValidationError('gameData', gameData, 'object');
+        }
+        
+        // Validar estrutura GSI esperada
+        const required = ['player', 'map', 'round'];
+        for (const field of required) {
+            if (!gameData[field]) {
+                throw new ValidationError(`gameData.${field}`, gameData[field], 'required field');
+            }
+        }
+        
+        return gameData;
+    }
+    
+    static sanitizeOutput(data) {
+        // Remove campos sensíveis antes de enviar
+        const sanitized = { ...data };
+        delete sanitized.apiKey;
+        delete sanitized.internalIds;
+        delete sanitized.debug;
+        return sanitized;
+    }
+}
+```
+
+### **🔐 PROTEÇÃO DE CREDENCIAIS:**
+
+```javascript
+class SecureConfig {
+    static getApiKey(service) {
+        const key = process.env[`${service.toUpperCase()}_API_KEY`];
+        
+        if (!key) {
+            throw new Error(`Missing API key for ${service}. Set ${service.toUpperCase()}_API_KEY environment variable.`);
+        }
+        
+        // Nunca logar a chave completa
+        Logger.info('config', `Loaded API key for ${service}`, { 
+            keyPrefix: key.substring(0, 8) + '...' 
+        });
+        
+        return key;
+    }
+    
+    static validateEnvironment() {
+        const required = [
+            'GEMINI_API_KEY',
+            'TRACKER_API_KEY',
+            'STEAM_API_KEY'
+        ];
+        
+        const missing = required.filter(key => !process.env[key]);
+        
+        if (missing.length > 0) {
+            throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+        }
+        
+        Logger.info('config', 'Environment validation passed');
+    }
+}
+```
+
+## **🧪 TESTING STANDARDS**
+
+### **✅ ESTRUTURA DE TESTE OBRIGATÓRIA:**
+
+```javascript
+// tests/services/tracker-api.test.js
+describe('TrackerAPI Service', () => {
+    let trackerService;
+    
+    beforeEach(() => {
+        trackerService = new TrackerAPIService();
+    });
+    
+    describe('fetchPlayerData', () => {
+        it('should fetch valid player data', async () => {
+            const steamId = '76561198123456789';
+            
+            const result = await trackerService.fetchPlayerData(steamId);
+            
+            expect(result).toBeDefined();
+            expect(result.name).toMatch(/^[a-zA-Z0-9_-]{1,32}$/);
+            expect(result.rank).toBeTruthy();
+            expect(result.lastUpdated).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+        });
+        
+        it('should handle API errors gracefully', async () => {
+            const invalidSteamId = 'invalid';
+            
+            await expect(
+                trackerService.fetchPlayerData(invalidSteamId)
+            ).rejects.toThrow(ValidationError);
+        });
+        
+        it('should complete within performance threshold', async () => {
+            const steamId = '76561198123456789';
+            const startTime = performance.now();
+            
+            await trackerService.fetchPlayerData(steamId);
+            
+            const duration = performance.now() - startTime;
+            expect(duration).toBeLessThan(2000); // 2s threshold
+        });
+    });
+});
+```
+
+## **📊 SCALABILITY REQUIREMENTS**
+
+### **✅ RESOURCE MANAGEMENT:**
+
+```javascript
+class ResourceManager {
+    constructor() {
+        this.activeConnections = new Set();
+        this.memoryThreshold = 500 * 1024 * 1024; // 500MB
+        this.cleanupInterval = 60000; // 1 minute
+        
+        this.startMonitoring();
+    }
+    
+    startMonitoring() {
+        setInterval(() => {
+            this.checkMemoryUsage();
+            this.cleanupResources();
+        }, this.cleanupInterval);
+    }
+    
+    checkMemoryUsage() {
+        const usage = process.memoryUsage();
+        
+        if (usage.heapUsed > this.memoryThreshold) {
+            Logger.warn('resource-manager', 'High memory usage detected', {
+                heapUsed: `${Math.round(usage.heapUsed / 1024 / 1024)}MB`,
+                threshold: `${Math.round(this.memoryThreshold / 1024 / 1024)}MB`
+            });
+            
+            // Forçar garbage collection se disponível
+            if (global.gc) {
+                global.gc();
+                Logger.info('resource-manager', 'Forced garbage collection');
+            }
+        }
+    }
+    
+    cleanupResources() {
+        // Implementar limpeza de recursos não utilizados
+        this.cleanupExpiredCaches();
+        this.closeInactiveConnections();
+    }
+}
+```
+
+## **🚀 DEPLOYMENT READINESS**
+
+### **✅ HEALTH CHECKS OBRIGATÓRIOS:**
+
+```javascript
+class HealthCheck {
+    static async performHealthCheck() {
+        const results = {
+            timestamp: new Date().toISOString(),
+            status: 'healthy',
+            checks: {}
+        };
+        
+        try {
+            // 1. Verificar conexões críticas
+            results.checks.database = await this.checkDatabase();
+            results.checks.geminiAPI = await this.checkGeminiAPI();
+            results.checks.memoryUsage = await this.checkMemoryUsage();
+            results.checks.diskSpace = await this.checkDiskSpace();
+            
+            // 2. Determinar status geral
+            const failures = Object.values(results.checks).filter(check => !check.healthy);
+            
+            if (failures.length > 0) {
+                results.status = 'degraded';
+                Logger.warn('health-check', 'System health degraded', { failures: failures.length });
+            }
+            
+        } catch (error) {
+            results.status = 'unhealthy';
+            results.error = error.message;
+            Logger.error('health-check', 'Health check failed', error);
+        }
+        
+        return results;
+    }
+    
+    static async checkGeminiAPI() {
+        try {
+            const start = performance.now();
+            // Fazer request simples para testar conectividade
+            await geminiClient.generateResponse('test', 'Test connection');
+            const duration = performance.now() - start;
+            
+            return {
+                healthy: duration < 5000,
+                responseTime: Math.round(duration),
+                timestamp: new Date().toISOString()
+            };
+        } catch (error) {
+            return {
+                healthy: false,
+                error: error.message,
+                timestamp: new Date().toISOString()
+            };
+        }
+    }
+}
+```
+
+## **💰 COMMERCIAL METRICS**
+
+### **📈 KPIs CRÍTICOS PARA MONITORAMENTO:**
+
+```javascript
+class BusinessMetrics {
+    static trackUserEngagement(action, userId, metadata = {}) {
+        Logger.info('metrics', 'User engagement', {
+            action,
+            userId: this.hashUserId(userId), // Privacy-safe
+            ...metadata
+        });
+    }
+    
+    static trackPerformanceMetric(metric, value, threshold) {
+        const isWithinSLA = value <= threshold;
+        
+        Logger.info('metrics', 'Performance metric', {
+            metric,
+            value,
+            threshold,
+            withinSLA: isWithinSLA,
+            timestamp: new Date().toISOString()
+        });
+        
+        if (!isWithinSLA) {
+            Logger.warn('metrics', 'SLA breach detected', {
+                metric,
+                value,
+                threshold,
+                breach: value - threshold
+            });
+        }
+    }
+    
+    static trackAPIUsage(endpoint, statusCode, duration) {
+        Logger.info('metrics', 'API usage', {
+            endpoint,
+            statusCode,
+            duration: Math.round(duration),
+            success: statusCode < 400
+        });
+    }
+}
+```
+
+---
+
+## **🎯 CHECKLIST DE QUALIDADE COMERCIAL**
+
+### **✅ ANTES DE COMMIT, VERIFICAR:**
+
+1. **Performance** - Todas as operações dentro dos thresholds
+2. **Error Handling** - Todos os cenários de erro cobertos
+3. **Logging** - Eventos importantes logados adequadamente
+4. **Validation** - Entrada/saída validadas
+5. **Security** - Credenciais protegidas, dados sanitizados
+6. **Tests** - Testes passando, cobertura adequada
+7. **Monitoring** - Métricas de negócio implementadas
+8. **Resource Management** - Sem vazamentos de memória
+9. **Scalability** - Código preparado para carga
+10. **Documentation** - Comportamento documentado
+
+### **🚫 REJEIÇÃO AUTOMÁTICA SE:**
+
+- Performance > thresholds definidos
+- Erro não tratado pode quebrar sistema
+- Credenciais hardcoded ou expostas
+- Testes críticos falhando
+- Memory leaks detectados
+- Logs inadequados para debugging
+- Validação de entrada ausente
+
+---
+
+## **LEMBRE-SE:**
+
+> **"Qualidade comercial não é negociável. Nossos usuários pagam por excelência."**
+
+### **MENTALIDADE COMERCIAL:**
+- ✅ **"Isso funciona em produção com 1000+ usuários?"**
+- ✅ **"Os dados estão protegidos?"**
+- ✅ **"O sistema se recupera de falhas?"**
+- ✅ **"A performance é aceitável sob carga?"**
+- ✅ **"Posso debuggar problemas rapidamente?"**
+
+**CADA FEATURE DEVE SER COMERCIALMENTE VIÁVEL DESDE O DIA 1!**
+

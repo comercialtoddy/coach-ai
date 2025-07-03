@@ -1,0 +1,159 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🚫 NO MOCKS - REAL IMPLEMENTATION ONLY
+
+## **REGRA CRÍTICA: IMPLEMENTAÇÃO REAL OBRIGATÓRIA**
+
+### ❌ **PROIBIDO TERMINANTEMENTE:**
+
+- **Truncamento de código** (nunca usar `// ... rest of implementation`)
+- **Simulações ou mocks** em código de produção
+- **Placeholders** como `// TODO: implement later`
+- **Funções vazias** com `return null` ou `return {}`
+- **Comentários de exemplo** sem implementação real
+- **Logs falsos** como `console.log('would do X')`
+- **Dados hardcoded** para simular APIs
+- **Timeouts para simular loading**
+- **Promises que resolvem com dados fake**
+
+### ✅ **OBRIGATÓRIO SEMPRE:**
+
+- **Implementação completa** de todas as funcionalidades
+- **Serviços reais** com lógica de negócio completa
+- **APIs funcionais** com endpoints implementados
+- **Tratamento de erro real** em todos os casos
+- **Validação completa** de dados de entrada
+- **Logging real** para debugging e monitoramento
+- **Testes funcionais** que validem comportamento real
+
+## **EXEMPLOS DE IMPLEMENTAÇÃO**
+
+### ❌ **ERRADO - Mock/Simulação:**
+```javascript
+// NUNCA FAZER ISSO
+async function fetchPlayerData(steamId) {
+    // Simulate API call
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve({ name: 'Mock Player', rank: 'Global Elite' });
+        }, 1000);
+    });
+}
+```
+
+### ✅ **CORRETO - Implementação Real:**
+```javascript
+// SEMPRE FAZER ASSIM
+async function fetchPlayerData(steamId) {
+    try {
+        const response = await axios.get(`${TRACKER_API_BASE}/profile/${steamId}`, {
+            headers: { 'Authorization': `Bearer ${API_KEY}` },
+            timeout: 5000
+        });
+        
+        return {
+            name: response.data.platformInfo.platformUserHandle,
+            rank: response.data.segments[0].stats.rank.displayValue,
+            winRate: response.data.segments[0].stats.wins.value,
+            lastUpdated: new Date().toISOString()
+        };
+    } catch (error) {
+        logger.error('Failed to fetch player data:', error);
+        throw new APIError(`Unable to fetch data for player ${steamId}`);
+    }
+}
+```
+
+## **DIRETRIZES ESPECÍFICAS POR TIPO**
+
+### **APIs e Serviços:**
+- **Implementar endpoints completos** com validação
+- **Conectar com bancos de dados reais** ([roundDatabase.js](mdc:src/database/roundDatabase.js))
+- **Integrar com APIs externas** (Tracker.gg, Steam, etc.)
+- **Implementar cache Redis** para performance
+- **Adicionar rate limiting** e error handling
+
+### **Frontend/UI:**
+- **Componentes funcionais** com state management real
+- **Formulários com validação** completa
+- **Loading states** baseados em requisições reais
+- **Error boundaries** para tratamento de falhas
+- **Routing funcional** entre páginas/views
+
+### **Sistema de IA (Gemini):**
+- **Prompts reais** que geram respostas úteis
+- **Integração completa** com [geminiClient.js](mdc:src/utils/geminiClient.js)
+- **Processamento real** de dados GSI
+- **Sistema de memória** funcionando ([geminiMemory.js](mdc:src/database/geminiMemory.js))
+- **Token optimization** implementado ([tokenOptimizer.js](mdc:src/utils/tokenOptimizer.js))
+
+### **Machine Learning:**
+- **Modelos treinados** com dados reais
+- **Pipeline de dados** funcional
+- **Inferência em tempo real** para [strategicInference.js](mdc:src/utils/strategicInference.js)
+- **MLflow integration** para versionamento
+- **Feature engineering** baseado em dados reais
+
+## **ARQUIVOS DE REFERÊNCIA PARA IMPLEMENTAÇÃO REAL**
+
+### **Sistemas Existentes (Use como base):**
+- [elitePrompt.js](mdc:src/coach/elitePrompt.js) - Prompts elite implementados
+- [autoAnalyzer.js](mdc:src/utils/autoAnalyzer.js) - Análise automática real
+- [eventDetector.js](mdc:src/utils/eventDetector.js) - Detecção de eventos funcional
+- [geminiClient.js](mdc:src/utils/geminiClient.js) - Cliente real da API
+- [tokenOptimizer.js](mdc:src/utils/tokenOptimizer.js) - Otimização real de tokens
+
+### **Estruturas de Dados Reais:**
+- [roundDatabase.js](mdc:src/database/roundDatabase.js) - Banco de dados funcional
+- [geminiMemory.js](mdc:src/database/geminiMemory.js) - Sistema de memória real
+
+## **PROCESSO DE VALIDAÇÃO**
+
+### **Antes de Implementar:**
+1. **Definir requisitos funcionais** específicos
+2. **Identificar dependências reais** (APIs, DBs, serviços)
+3. **Planejar tratamento de erros** para todos os cenários
+4. **Estabelecer critérios de sucesso** mensuráveis
+
+### **Durante Implementação:**
+1. **Testar com dados reais** sempre que possível
+2. **Implementar logging detalhado** para debugging
+3. **Validar entrada e saída** de todas as funções
+4. **Garantir performance adequada** (< 100ms para operações críticas)
+
+### **Após Implementação:**
+1. **Executar testes funcionais** completos
+2. **Validar integração** com sistemas existentes
+3. **Verificar conformidade** com arquitetura do projeto
+4. **Documentar comportamento real** observado
+
+## **CONSEQUÊNCIAS DO NÃO CUMPRIMENTO**
+
+- **Rejeição imediata** do código
+- **Refatoração obrigatória** para implementação real
+- **Revisão completa** da funcionalidade
+- **Delay no cronograma** do projeto
+
+## **LEMBRE-SE:**
+
+> **"Estamos construindo um produto comercial de nível Tier 1. Cada linha de código deve ser produção-ready desde o primeiro commit."**
+
+### **Mentalidade Correta:**
+- ✅ **"Como um usuário real utilizaria isso?"**
+- ✅ **"Que dados reais este código processará?"**
+- ✅ **"Como isso falha e como recuperamos?"**
+- ✅ **"Isso funciona em produção com 1000+ usuários?"**
+
+### **Mentalidade Errada:**
+- ❌ **"Vou implementar depois"**
+- ❌ **"Por enquanto um mock serve"**
+- ❌ **"É só um protótipo"**
+- ❌ **"Funciona no meu ambiente"**
+
+---
+
+**ESTA REGRA É INEGOCIÁVEL E DEVE SER SEGUIDA EM 100% DAS IMPLEMENTAÇÕES.**
+
