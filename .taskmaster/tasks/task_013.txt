@@ -1,0 +1,11 @@
+# Task ID: 13
+# Title: Implement Player Behavior Clustering Model
+# Status: pending
+# Dependencies: 6, 11
+# Priority: high
+# Description: Develop and train machine learning models (TensorFlow/PyTorch) to categorize player behavior patterns.
+# Details:
+Set up a Python backend for ML model training. Use unsupervised learning algorithms (e.g., K-means, DBSCAN, or GMM) on historical player data derived from GSI (movement patterns, engagement styles, utility usage, common positions) and external sources. Identify distinct clusters such as 'Aggressive Entry', 'Passive Lurker', 'Support Player', 'AWPer'. Export trained models for edge deployment.
+
+# Test Strategy:
+Evaluate clustering quality using metrics like Silhouette Score or Davies-Bouldin Index. Manual review of clustered player profiles against known playstyles. Integration tests to ensure models can be loaded and perform inference correctly in the application environment.

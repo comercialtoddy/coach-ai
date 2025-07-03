@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Develop Token Optimization System
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Design and implement the system to achieve a 70% token cost reduction for AI interactions by optimizing prompt size.
+# Details:
+Develop data summarization and filtering algorithms for GSI data before sending it to Gemini AI. Techniques could include: 1) Keyword extraction for critical events, 2) Entity recognition to focus on relevant players/objects, 3) State compression by only sending diffs or highly relevant subsets of the GSI payload. Aim to reduce the overall token count per prompt.
+
+# Test Strategy:
+Unit tests for summarization algorithms, verifying token count reduction. Benchmarking token usage against unoptimized prompts. Manual review of AI responses to ensure critical context is not lost due to optimization.

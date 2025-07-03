@@ -1,0 +1,11 @@
+# Task ID: 21
+# Title: Develop Automated Tactical Callouts Module
+# Status: pending
+# Dependencies: 7, 14, 17
+# Priority: medium
+# Description: Develop the module responsible for generating and delivering AI-driven tactical callouts.
+# Details:
+Integrate a text-to-speech (TTS) engine (e.g., Web Speech API or a cloud-based TTS service) or utilize pre-recorded audio assets. Implement logic to select and trigger specific callouts based on real-time game events, AI predictions (Task 14), and prioritized recommendations (Task 7). Examples: 'Enemy B site push', 'Rotate A', 'Need smoke mid'.
+
+# Test Strategy:
+Unit tests for callout selection logic. Manual audio quality review for TTS or pre-recorded assets. Integration tests with simulated game events to verify correct and timely callout triggers. User feedback on clarity and usefulness of callouts.

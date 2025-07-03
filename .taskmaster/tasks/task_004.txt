@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: Build Strategic Inference Engine (Basic)
+# Status: pending
+# Dependencies: 1, 3
+# Priority: high
+# Description: Develop initial logic for inferring basic Counter-Strike 2 strategies from real-time game state data.
+# Details:
+Implement a rule-based or simple pattern-matching engine. This engine will analyze GSI data (e.g., player positions, utility usage, bomb status) to identify common CS2 strategies such as 'A-site rush', 'eco round', 'retake scenario', or 'mid control'. Use a state machine or decision tree approach.
+
+# Test Strategy:
+Unit tests for individual inference rules and patterns. Integration tests with simulated game states to verify correct strategy identification. Manual validation during live gameplay to confirm accurate strategic inferences.

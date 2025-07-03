@@ -1,0 +1,11 @@
+# Task ID: 20
+# Title: Prototype Mobile Companion App (Data Display)
+# Status: pending
+# Dependencies: 12, 17
+# Priority: medium
+# Description: Develop a basic mobile companion application prototype for displaying pre-match briefings and post-match analysis.
+# Details:
+Create a cross-platform mobile application prototype (e.g., using React Native or Flutter). This app will primarily consume data from the desktop application's backend or a cloud service to display aggregated stats, pre-match briefings, and post-match AI insights. Focus on read-only functionality for the initial prototype.
+
+# Test Strategy:
+Unit tests for data consumption and display logic. UI component tests for mobile layouts. Cross-device compatibility testing on various mobile operating systems and screen sizes. Manual verification of data synchronization.

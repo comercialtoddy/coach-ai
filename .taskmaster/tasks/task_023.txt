@@ -1,0 +1,11 @@
+# Task ID: 23
+# Title: Implement Coach Spectator Mode with Insights
+# Status: pending
+# Dependencies: 17, 21
+# Priority: medium
+# Description: Develop a dedicated mode for coaches to spectate live games and review post-match analysis with enhanced AI insights.
+# Details:
+Create a separate UI view within the application or a web-based interface for coaches. This mode will display live game data, team-wide performance metrics, AI-generated tactical insights specific to team coordination, and allow for review of post-match analysis with AI annotations. Integrate with the automated callouts system for coach-specific alerts.
+
+# Test Strategy:
+UI component tests for the coach mode interface. Integration tests with live game data and replay files. User acceptance testing by professional coaches to validate the utility and relevance of insights.

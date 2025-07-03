@@ -1,0 +1,11 @@
+# Task ID: 12
+# Title: Develop Pre-Match Briefing System
+# Status: pending
+# Dependencies: 7, 11
+# Priority: high
+# Description: Aggregate and present comprehensive pre-match briefings with opponent analysis and historical data.
+# Details:
+Develop a module that combines normalized data from external APIs (Task 11) with AI-inferred insights (Task 7) to generate detailed pre-match briefings. Focus on key opponent playstyles, map tendencies, individual player strengths/weaknesses, and recent performance trends. Implement a templating system for briefing generation.
+
+# Test Strategy:
+Unit tests for data aggregation logic. Integration tests with mocked external data and AI insights to verify briefing content generation. Manual review of generated briefings for accuracy, completeness, and readability.

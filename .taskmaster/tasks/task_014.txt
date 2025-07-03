@@ -1,0 +1,11 @@
+# Task ID: 14
+# Title: Develop Opponent Strategy Prediction Model
+# Status: pending
+# Dependencies: 6, 11, 13
+# Priority: high
+# Description: Build and train machine learning models to predict opponent strategies with 80%+ accuracy.
+# Details:
+Utilize a Python backend with TensorFlow/PyTorch. Develop supervised learning models (e.g., LSTM, Transformer networks, or advanced tree-based models) trained on historical match data, GSI patterns, and identified player behaviors. The model should predict common opponent setups, pushes, and rotations based on early-round information. Export models for real-time inference.
+
+# Test Strategy:
+Evaluate prediction accuracy using metrics like precision, recall, F1-score, and ROC AUC. Conduct cross-validation and hold-out testing. Manual review of predictions against actual opponent actions in recorded matches. Integration tests for real-time inference speed.

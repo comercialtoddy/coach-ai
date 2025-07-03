@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Build Data Normalization & Caching Pipeline
+# Status: pending
+# Dependencies: 10
+# Priority: high
+# Description: Standardize and cache data fetched from external APIs for efficient and consistent use across the platform.
+# Details:
+Design a unified schema for normalized player, team, and match data, abstracting away differences in external API responses. Implement data transformation logic (e.g., using custom mappers or a data processing library). Integrate a caching layer (e.g., an in-memory LRU cache or Redis) with a clear invalidation strategy and adherence to API rate limits.
+
+# Test Strategy:
+Unit tests for data normalization transformations, ensuring consistent output. Integration tests for the caching layer, verifying cache hits/misses and data freshness. Verify that rate limits are respected and data is consistently available.

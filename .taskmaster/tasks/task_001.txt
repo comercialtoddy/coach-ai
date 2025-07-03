@@ -1,0 +1,11 @@
+# Task ID: 1
+# Title: Setup Electron Application & GSI Integration
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Establish the core Electron application structure and integrate with CS2 Game State Integration (GSI) for real-time data.
+# Details:
+Initialize a new Electron project. Set up a local HTTP server to listen for GSI JSON payloads from CS2. Implement robust parsing and validation logic for incoming game state data, including player positions, health, weapons, and round events. Ensure data integrity and error handling for malformed GSI data.
+
+# Test Strategy:
+Unit tests for GSI JSON parsing and data validation. Integration tests with a mock GSI server sending various game states. Manual testing by running the Electron app alongside CS2 and verifying real-time data reception and display.

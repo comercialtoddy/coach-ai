@@ -1,0 +1,11 @@
+# Task ID: 16
+# Title: Establish ML Model Versioning & A/B Testing Framework
+# Status: pending
+# Dependencies: 13, 14, 15
+# Priority: medium
+# Description: Establish MLOps practices for managing, versioning, and A/B testing machine learning models.
+# Details:
+Implement a system for tracking different versions of trained ML models and their associated datasets (e.g., using DVC for data versioning). Set up an experiment tracking platform (e.g., MLflow) to log training runs, metrics, and parameters. Develop a framework for conducting A/B tests of new model versions in production, allowing for seamless rollbacks.
+
+# Test Strategy:
+Verify that models can be versioned, deployed, and rolled back successfully. Ensure A/B test results are accurately collected and analyzed. Conduct end-to-end tests of the MLOps pipeline from training to production deployment.

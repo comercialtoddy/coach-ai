@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Implement Core Gemini AI Integration
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Establish the initial connection and implement a basic prompt-response mechanism with Gemini AI for game state analysis.
+# Details:
+Set up an API client for Gemini AI, handling authentication (e.g., API keys). Implement a basic request-response cycle where parsed GSI data is sent to Gemini AI with an initial 'elite prompt system' context (e.g., 'Analyze current round state'). Process and log the AI's textual responses.
+
+# Test Strategy:
+Unit tests for the Gemini AI API client and authentication. Integration tests with the actual Gemini API (using a development key) to verify successful requests and valid responses. Manual verification of AI output for simple game states.

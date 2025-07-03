@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Implement Smart Trigger System
+# Status: pending
+# Dependencies: 2, 4
+# Priority: high
+# Description: Design and build a system to prevent AI response spam and ensure timely, relevant delivery of insights.
+# Details:
+Implement logic to control the frequency and context of AI responses. This includes: 1) Cooldown timers for specific types of alerts, 2) Relevance scoring based on game state changes or player actions, 3) User-configurable preferences for trigger sensitivity. The system should prioritize critical insights over less urgent ones.
+
+# Test Strategy:
+Unit tests for cooldown mechanisms and relevance scoring. Integration tests with simulated rapid game events to ensure spam prevention. Manual testing during gameplay to verify appropriate timing and frequency of AI triggers.
