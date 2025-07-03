@@ -4,8 +4,11 @@
  */
 
 const { buildPromptWithGSI } = require('../coach/prompt.js');
+const ElitePromptSystem = require('../coach/elitePrompt.js');
 const RoundDatabase = require('../database/roundDatabase.js');
 const EventDetector = require('./eventDetector.js');
+const GeminiMemory = require('../database/geminiMemory.js');
+const SmartAnalysisTrigger = require('./smartAnalysisTrigger.js');
 
 class AutoAnalyzer {
     constructor(geminiClient, overlayWindow = null) {
@@ -19,6 +22,15 @@ class AutoAnalyzer {
         // NOVA: Sistema de banco de dados e detecção de eventos
         this.roundDatabase = new RoundDatabase();
         this.eventDetector = new EventDetector(this.roundDatabase);
+        
+        // NOVO: Sistema de memória do GEMINI
+        this.geminiMemory = new GeminiMemory();
+        
+        // NOVO: Sistema inteligente de análise estratégica
+        this.smartTrigger = new SmartAnalysisTrigger();
+        
+        // NOVO: Sistema Elite de Prompts Tier 1
+        this.elitePromptSystem = new ElitePromptSystem();
         
         // NOVA: Tracking do lado do jogador
         this.currentPlayerSide = null;
@@ -58,19 +70,25 @@ class AutoAnalyzer {
             'auto_analysis': 60000          // 60s - Análise periódica
         };
         
-        // Configurações estratégicas
-        this.analysisIntervalMs = 10000; // 2 minutos para economia de requests
-        this.minHealthForWarning = 30;
-        this.lowMoneyThreshold = 1000;
+        // Configurações estratégicas refinadas
+        this.strategicConfig = {
+            mainPlayerFocusOnly: true, // Focar apenas no jogador principal
+            teamCallsEnabled: true, // Gerar calls para o time
+            smartCooldownEnabled: true, // Cooldown inteligente baseado na situação
+            maxAnalysisPerRound: 2, // Máximo 2 análises por round para evitar spam
+            criticalEventBypass: true // Eventos críticos sempre passam pelo filtro
+        };
+        
         this.previousGameData = null;
         
         this.init();
     }
     
     init() {
-        console.log('[INIT] Auto Analyzer inicializado com Rate Limiting (10s interval)');
-        this.startPeriodicAnalysis();
+        console.log('[INIT] Auto Analyzer inicializado com Análise Inteligente');
+        // REMOVIDO: this.startPeriodicAnalysis(); - Não mais análise automática constante
         this.startRequestQueue();
+        console.log('[SMART] Sistema SmartAnalysisTrigger ativo - análise apenas em momentos estratégicos');
     }
     
     startRequestQueue() {
@@ -123,17 +141,45 @@ class AutoAnalyzer {
             enrichedGameData.roundContext = this.roundDatabase.getAnalysisContext();
         }
         
-        const promptData = buildPromptWithGSI(analysisType, enrichedGameData, context);
+        // NOVO: Obter contexto de memória do GEMINI
+        const playerName = gameData.player?.name || 'Player';
+        const memoryContext = this.geminiMemory.getMemoryContext(analysisType, enrichedGameData, playerName);
+        
+        // Adicionar contexto de memória ao prompt se disponível
+        let enhancedContext = context;
+        if (memoryContext) {
+            enhancedContext = memoryContext + '\n\n' + context;
+            console.log(`[MEMORY] Contexto de memória adicionado para ${playerName}`);
+        }
+        
+        // NOVO: Usar sistema Elite de prompts para Tier 1 coaching
+        let promptData;
+        try {
+            promptData = this.elitePromptSystem.generateElitePrompt(analysisType, enrichedGameData, enhancedContext);
+            console.log(`[ELITE_PROMPT] Usando sistema Tier 1 - Tokens estimados: ${promptData.metadata.estimatedTokens}`);
+        } catch (error) {
+            console.log(`[FALLBACK] Elite system failed, using traditional prompt:`, error.message);
+            promptData = buildPromptWithGSI(analysisType, enrichedGameData, enhancedContext);
+        }
         
         console.log(`[DEBUG] System Prompt Length: ${promptData.systemPrompt.length} chars`);
         console.log(`[DEBUG] User Prompt: ${promptData.userPrompt}`);
         console.log(`[DEBUG] Enviando para Gemini...`);
         
-        const response = await this.geminiClient.generateResponse(
+        // NOVO: Usar configurações otimizadas do sistema Elite se disponível
+        let response;
+        if (promptData.geminiConfig) {
+            response = await this.geminiClient.generateResponse(
+                promptData.userPrompt,
+                promptData.systemPrompt,
+                promptData.geminiConfig
+            );
+        } else {
+            response = await this.geminiClient.generateResponse(
             promptData.userPrompt,
             promptData.systemPrompt
-            // maxLength removido - permitir respostas completas
         );
+        }
 
         console.log(`[DEBUG] Resposta completa do Gemini: "${response}"`);
         console.log(`[DEBUG] Tamanho da resposta: ${response ? response.length : 0} chars`);
@@ -144,6 +190,18 @@ class AutoAnalyzer {
         }
 
         console.log(`[SUCCESS] Insight gerado: ${response.substring(0, 50)}...`);
+        
+        // NOVO: Salvar resposta na memória do GEMINI
+        const conversationId = `${playerName}_${Date.now()}`;
+        this.geminiMemory.addConversation(
+            conversationId,
+            playerName,
+            analysisType,
+            enhancedContext,
+            response,
+            enrichedGameData
+        );
+        
         this.displayAutoInsight(response, analysisType);
         
         // Atualizar cooldown
@@ -178,18 +236,13 @@ class AutoAnalyzer {
         console.log(`[QUEUE] ${analysisType} adicionado à fila (${this.requestQueue.length} pending)`);
     }
     
+    // DESABILITADO: Análise periódica removida - sistema inteligente
     startPeriodicAnalysis() {
-        // Análise estratégica a cada 2 minutos (reduzido para economizar requests)
-        this.analysisInterval = setInterval(() => {
-            this.performAutoAnalysis();
-        }, this.analysisIntervalMs);
+        console.log('[OLD SYSTEM] startPeriodicAnalysis desabilitado - usando SmartAnalysisTrigger');
     }
     
     stopPeriodicAnalysis() {
-        if (this.analysisInterval) {
-            clearInterval(this.analysisInterval);
-            this.analysisInterval = null;
-        }
+        console.log('[OLD SYSTEM] stopPeriodicAnalysis desnecessário - sistema inteligente ativo');
     }
     
     async updateGameState(gameData) {
@@ -202,25 +255,37 @@ class AutoAnalyzer {
         // NOVO: Detectar eventos importantes usando o EventDetector
         const detectedEvents = this.eventDetector.updateState(gameData);
         
-        // Processar eventos detectados
+        // NOVO: Processar eventos com análise inteligente
         for (const event of detectedEvents) {
             console.log(`[EVENT DETECTED] ${event.type} - Priority: ${event.priority}`, event.data);
             
-            // Análise imediata para eventos críticos
-            if (event.priority === 'critical') {
+            // Usar SmartAnalysisTrigger para decidir se deve analisar
+            const analysisDecision = this.smartTrigger.shouldAnalyze(
+                event.type, 
+                gameData, 
+                this.roundDatabase.getAnalysisContext()
+            );
+            
+            if (analysisDecision.should) {
+                console.log(`[SMART ANALYSIS] ✅ Analisando ${event.type} - ${analysisDecision.reason} (confiança: ${analysisDecision.confidence}%)`);
                 this.queueInsightRequest(event.type, gameData, JSON.stringify(event.data));
+            } else {
+                console.log(`[SMART ANALYSIS] ⏸️ Pulando ${event.type} - ${analysisDecision.reason}`);
             }
             
-            // Solicitar resumo do round no final
+            // Resumo do round sempre acontece (independente do smart trigger)
             if (event.type === 'round_end' && event.data.needsSummary) {
                 await this.generateRoundSummary(gameData);
             }
         }
         
-        // Análise estratégica apenas em momentos críticos
-        if (this.previousGameData) {
-            await this.checkStrategicMoments(gameData);
-        }
+        // REMOVIDO: Análise estratégica constante substituída por SmartAnalysisTrigger
+        // if (this.previousGameData) {
+        //     await this.checkStrategicMoments(gameData);
+        // }
+        
+        // NOVO: Gerar calls inteligentes para o time
+        this.generateTeamCalls(gameData);
     }
     
     // NOVA FUNÇÃO: Tracking do lado do jogador
@@ -275,17 +340,10 @@ class AutoAnalyzer {
         }
     }
     
-    async performAutoAnalysis() {
-        if (!this.lastGameState || !this.geminiClient) {
-            console.log('[WARNING] AutoAnalysis skipped: Missing game state or Gemini client');
-            return;
-        }
-        
-        console.log('[ANALYZER] Verificando momentos estratégicos...');
-        
-        // Usar fila para auto analysis periódica
-        this.queueInsightRequest('auto_analysis', this.lastGameState, 'Periodic analysis');
-    }
+    // DESABILITADO: Análise automática periódica removida
+    // async performAutoAnalysis() {
+    //     console.log('[OLD SYSTEM] Análise automática desabilitada - usando SmartAnalysisTrigger');
+    // }
     
     displayAutoInsight(insight, type) {
         console.log(`[DEBUG] displayAutoInsight chamado com:`);
@@ -555,6 +613,20 @@ class AutoAnalyzer {
         const roundContext = this.roundDatabase.getAnalysisContext();
         const roundSummary = this.roundDatabase.getRoundSummary();
         
+        // NOVO: Avaliar efetividade das respostas baseado no resultado do round
+        const roundResult = this.roundDatabase.currentRound.finalResult;
+        if (roundResult) {
+            this.evaluateResponseEffectiveness(
+                roundResult.playerWon,
+                roundContext.currentKills,
+                roundContext.currentDeaths,
+                roundContext.currentDamage
+            );
+        }
+        
+        // Obter estatísticas de memória para incluir no resumo
+        const memoryStats = this.geminiMemory.getStats();
+        
         // Criar prompt especial para resumo do round
         const summaryPrompt = `
 RESUMO COMPLETO DO ROUND ${roundContext.roundNumber}
@@ -573,16 +645,41 @@ DADOS DO ROUND:
 - Dano Total: ${roundContext.currentDamage}
 - Eventos Importantes: ${roundContext.importantEvents.length}
 
+ESTATÍSTICAS DE APRENDIZADO:
+- Total de Conversas: ${memoryStats.totalConversations}
+- Taxa de Memória Útil: ${Math.round(memoryStats.memoryEfficiency * 100)}%
+- Taxa de Acerto dos Conselhos: ${Math.round(memoryStats.accuracyRate * 100)}%
+
 Com base em todos esses dados, forneça:
 1. RESUMO EXECUTIVO do round (o que aconteceu)
 2. PONTOS POSITIVOS (o que foi bem executado)
 3. PONTOS DE MELHORIA (o que pode ser aprimorado)
 4. LIÇÕES APRENDIDAS (insights táticos para próximos rounds)
 5. RECOMENDAÇÃO ESTRATÉGICA para o próximo round
+6. AVALIAÇÃO DA EFETIVIDADE DOS CONSELHOS DADOS durante o round
 `;
         
         // Usar fila com prioridade máxima para resumo
         this.queueInsightRequest('round_summary', gameData, summaryPrompt);
+    }
+    
+    // NOVO: Gerar calls inteligentes para o time
+    generateTeamCalls(gameData) {
+        if (!gameData.allplayers) return;
+        
+        const calls = this.smartTrigger.generateTeamCalls(gameData);
+        
+        if (calls.length > 0) {
+            // Enviar calls para o overlay (não para análise do GEMINI)
+            if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
+                this.overlayWindow.webContents.send('team-calls', {
+                    calls: calls,
+                    timestamp: Date.now()
+                });
+            }
+            
+            console.log(`[TEAM CALLS] ${calls.length} calls gerados:`, calls.map(c => `${c.target}: ${c.type}`));
+        }
     }
     
     // NOVO: Método para obter estatísticas em tempo real
@@ -591,15 +688,120 @@ Com base em todos esses dados, forneça:
             database: this.roundDatabase.getAnalysisContext(),
             currentRound: this.roundDatabase.currentRound,
             playerStats: this.roundDatabase.playerStats,
-            patterns: this.roundDatabase.patterns
+            patterns: this.roundDatabase.patterns,
+            memory: this.geminiMemory.getStats(),
+            smartTrigger: this.smartTrigger.getStats()
         };
+    }
+    
+    // NOVO: Avaliar efetividade das respostas baseado no resultado do round
+    evaluateResponseEffectiveness(roundWon, kills, deaths, damage) {
+        // Buscar conversas recentes (últimos 5 minutos)
+        const recentConversations = this.geminiMemory.quickLookup.recentConversations
+            .filter(conv => Date.now() - conv.timestamp < 300000) // 5 minutos
+            .slice(0, 5); // Máximo 5 conversas recentes
+        
+        recentConversations.forEach((conv, index) => {
+            let effectiveness = 'neutral';
+            let feedback = '';
+            
+            // Avaliar baseado no tipo de conselho e resultado
+            switch (conv.situation) {
+                case 'triple_kill':
+                case 'quad_kill':
+                case 'ace':
+                    effectiveness = roundWon ? 'positive' : 'neutral';
+                    feedback = roundWon ? 'Manteve vantagem após multi-kill' : 'Multi-kill mas round perdido';
+                    break;
+                    
+                case 'clutch_situation':
+                    effectiveness = roundWon ? 'positive' : 'negative';
+                    feedback = roundWon ? 'Clutch vencido' : 'Clutch perdido';
+                    break;
+                    
+                case 'bomb_planted':
+                case 'bomb_defusing':
+                    effectiveness = roundWon ? 'positive' : 'negative';
+                    feedback = roundWon ? 'Situação de bomba bem executada' : 'Falha na situação de bomba';
+                    break;
+                    
+                case 'low_health':
+                case 'critical_health':
+                    // Se sobreviveu com HP baixo e venceu = positivo
+                    if (roundWon && deaths === 0) {
+                        effectiveness = 'positive';
+                        feedback = 'Sobreviveu com HP baixo e venceu round';
+                    } else if (deaths > 0) {
+                        effectiveness = 'neutral';
+                        feedback = 'Morreu após alerta de HP baixo';
+                    }
+                    break;
+                    
+                case 'economy_shift':
+                case 'economy_warning':
+                    // Avaliar baseado na performance econômica
+                    if (roundWon && kills >= 2) {
+                        effectiveness = 'positive';
+                        feedback = 'Boa gestão econômica resultou em vitória';
+                    } else if (!roundWon && kills === 0) {
+                        effectiveness = 'negative';
+                        feedback = 'Estratégia econômica não funcionou';
+                    }
+                    break;
+                    
+                case 'round_start':
+                case 'ct_strategy':
+                case 'tr_strategy':
+                    // Avaliar estratégia geral do round
+                    if (roundWon && (kills >= 2 || damage >= 150)) {
+                        effectiveness = 'positive';
+                        feedback = `Estratégia efetiva: ${kills}K, ${damage} DMG`;
+                    } else if (!roundWon && kills === 0 && damage < 50) {
+                        effectiveness = 'negative';
+                        feedback = 'Estratégia não resultou em impacto significativo';
+                    }
+                    break;
+                    
+                default:
+                    // Para outros tipos, avaliar baseado na performance geral
+                    if (roundWon && kills >= 1) {
+                        effectiveness = 'positive';
+                    } else if (!roundWon && kills === 0) {
+                        effectiveness = 'negative';
+                    }
+            }
+            
+            // Marcar efetividade na memória
+            this.geminiMemory.markResponseEffectiveness(
+                conv.id,
+                0, // Index da resposta (sempre 0 para nossa implementação)
+                effectiveness,
+                feedback
+            );
+            
+            console.log(`[MEMORY] Efetividade marcada: ${effectiveness} para ${conv.situation}`);
+        });
     }
     
     destroy() {
         this.stopPeriodicAnalysis();
         this.requestQueue = [];
         this.roundDatabase.reset();
-        console.log('[SHUTDOWN] Auto Analyzer finalizado');
+        
+        // NOVO: Salvar memória antes de finalizar
+        if (this.geminiMemory) {
+            this.geminiMemory.saveMemory();
+        }
+        
+        // NOVO: Mostrar estatísticas do sistema inteligente
+        if (this.smartTrigger) {
+            const stats = this.smartTrigger.getStats();
+            console.log('[SMART STATS] Jogador principal:', stats.mainPlayer.name);
+            console.log('[SMART STATS] Total de análises:', stats.antiSpam.totalAnalyses);
+            console.log('[SMART STATS] Análises recentes:', stats.antiSpam.recentTypes.map(t => t.type));
+        }
+        
+        console.log('[SHUTDOWN] Auto Analyzer finalizado com sistema inteligente');
     }
 }
 

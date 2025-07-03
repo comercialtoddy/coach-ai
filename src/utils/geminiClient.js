@@ -52,7 +52,7 @@ class GeminiClient {
                 generationConfig: {
                     temperature: 0.1,
                     topP: 0.95,
-                    maxOutputTokens: 2048, // Aumentado para suportar prompts longos
+                    maxOutputTokens: 8192, // CORRIGIDO: Aumentado para suportar respostas Elite completas
                     responseMimeType: "text/plain",
                 },
                 safetySettings: [
@@ -95,6 +95,12 @@ class GeminiClient {
             // Gerar resposta
             const result = await this.model.generateContent(fullPrompt);
             const response = result.response;
+            
+            // Log crítico apenas se houver problema
+            if (response.candidates && response.candidates[0]?.finishReason === 'MAX_TOKENS') {
+                console.log('[GEMINI_WARNING] Response truncated due to token limit');
+            }
+            
             const text = response.text();
             
             // Processar e limpar resposta
@@ -109,7 +115,7 @@ class GeminiClient {
             return cleanedResponse;
             
         } catch (error) {
-            console.error('[ERROR] Error generating response:', error);
+            console.error('[GEMINI_ERROR] Error generating response:', error.message);
             throw error; // Não usar fallbacks - propagar erro real
         }
     }

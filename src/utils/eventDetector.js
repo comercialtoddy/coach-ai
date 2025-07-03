@@ -73,11 +73,6 @@ class EventDetector {
         const roundEnd = this.detectRoundEnd();
         if (roundEnd) detectedEvents.push(roundEnd);
         
-        // Registrar eventos no banco de dados
-        detectedEvents.forEach(event => {
-            this.registerEventInDatabase(event);
-        });
-        
         return detectedEvents;
     }
     
@@ -122,7 +117,7 @@ class EventDetector {
         };
     }
     
-    // Detectar início de round
+    // Detectar início de round com análise estratégica
     detectRoundStart() {
         if (this.currentState.roundPhase === 'freezetime' && 
             this.previousState.roundPhase !== 'freezetime' &&
@@ -131,34 +126,31 @@ class EventDetector {
             this.eventTracking.roundStartDetected = true;
             this.eventTracking.killStreak = 0;
             
-            // Iniciar novo round no banco de dados
-            this.roundDB.startNewRound(
-                this.currentState.roundNumber,
-                {
-                    name: this.currentState.playerName,
-                    team: this.currentState.playerTeam,
-                    state: {
-                        health: this.currentState.playerHealth,
-                        money: this.currentState.playerMoney,
-                        armor: this.currentState.playerArmor
-                    }
-                },
-                {
-                    name: this.currentState.mapName,
-                    round: this.currentState.roundNumber,
-                    team_ct: { score: this.currentState.teamScore.ct },
-                    team_t: { score: this.currentState.teamScore.t }
-                }
-            );
+            // Classificar tipo de round para análise mais específica
+            let roundType = 'round_start';
+            const money = this.currentState.playerMoney;
+            const roundNumber = this.currentState.roundNumber;
+            
+            // Rounds especiais que merecem análise
+            if (roundNumber === 1 || roundNumber === 16) {
+                roundType = 'round_start_pistol';
+            } else if (money < 1500) {
+                roundType = 'round_start_eco';
+            } else if (money < 3000) {
+                roundType = 'round_start_force';
+            } else if (this.isMatchPoint()) {
+                roundType = 'round_start_decisive';
+            }
             
             return {
-                type: 'round_start',
-                priority: 'high',
+                type: roundType,
+                priority: roundType.includes('pistol') || roundType.includes('decisive') ? 'high' : 'medium',
                 data: {
                     round: this.currentState.roundNumber,
                     side: this.currentState.playerTeam,
                     money: this.currentState.playerMoney,
-                    score: `CT ${this.currentState.teamScore.ct} - ${this.currentState.teamScore.t} T`
+                    score: `CT ${this.currentState.teamScore.ct} - ${this.currentState.teamScore.t} T`,
+                    roundType: roundType
                 }
             };
         }
@@ -362,8 +354,6 @@ class EventDetector {
         if (aliveTeammates === 0 && aliveEnemies >= this.thresholds.clutchThreshold) {
             this.eventTracking.clutchDetected = true;
             
-            this.roundDB.detectClutchSituation(aliveTeammates, aliveEnemies);
-            
             return {
                 type: 'clutch_situation',
                 priority: 'critical',
@@ -398,9 +388,6 @@ class EventDetector {
             const tWon = this.currentState.teamScore.t > this.previousState.teamScore.t;
             const winner = ctWon ? 'CT' : (tWon ? 'T' : 'DRAW');
             
-            // Finalizar round no banco de dados
-            this.roundDB.endRound(winner);
-            
             return {
                 type: 'round_end',
                 priority: 'critical',
@@ -420,50 +407,6 @@ class EventDetector {
         return null;
     }
     
-    // Registrar evento no banco de dados
-    registerEventInDatabase(event) {
-        switch (event.type) {
-            case 'triple_kill':
-            case 'quad_kill':
-            case 'ace':
-            case 'rapid_kills':
-                // Esses já são registrados via addKill no roundDB
-                this.roundDB.addEvent(event.type, event.data, event.priority);
-                break;
-                
-            case 'low_health':
-            case 'critical_health':
-                this.roundDB.addEvent('health_update', {
-                    health: event.data.health,
-                    armor: event.data.armor,
-                    critical: event.type === 'critical_health'
-                }, event.priority);
-                break;
-                
-            case 'economy_shift':
-            case 'low_economy':
-                this.roundDB.addEconomyChange(
-                    event.data.previousMoney || 0,
-                    event.data.currentMoney || event.data.money,
-                    event.type
-                );
-                break;
-                
-            case 'bomb_planted':
-            case 'bomb_defusing':
-                // Esses são registrados via addBombEvent
-                this.roundDB.addEvent(event.type, event.data, event.priority);
-                break;
-                
-            case 'clutch_situation':
-                // Já registrado via detectClutchSituation
-                break;
-                
-            default:
-                this.roundDB.addEvent(event.type, event.data, event.priority);
-        }
-    }
-    
     // Obter arma ativa
     getActiveWeapon(weapons) {
         if (!weapons) return 'unknown';
@@ -475,6 +418,104 @@ class EventDetector {
         }
         
         return 'unknown';
+    }
+    
+    // Funções auxiliares para detecção estratégica
+    isMatchPoint() {
+        const ctScore = this.currentState.teamScore.ct;
+        const tScore = this.currentState.teamScore.t;
+        return ctScore >= 15 || tScore >= 15;
+    }
+    
+    isPistolRound() {
+        const roundNumber = this.currentState.roundNumber;
+        return roundNumber === 1 || roundNumber === 16;
+    }
+    
+    isEcoRound() {
+        return this.currentState.playerMoney < 1500;
+    }
+    
+    isForceRound() {
+        return this.currentState.playerMoney >= 1500 && this.currentState.playerMoney < 3000;
+    }
+    
+    isCloseGame() {
+        const ctScore = this.currentState.teamScore.ct;
+        const tScore = this.currentState.teamScore.t;
+        return Math.abs(ctScore - tScore) <= 2;
+    }
+    
+    hasLowTime() {
+        return this.currentState.roundTime <= 30;
+    }
+    
+    isOvertime() {
+        const ctScore = this.currentState.teamScore.ct;
+        const tScore = this.currentState.teamScore.t;
+        return (ctScore + tScore) >= 30;
+    }
+    
+    // Detectar situações específicas que requerem calls inteligentes
+    detectTeamSituations() {
+        const situations = [];
+        
+        if (!this.currentState.allPlayers) return situations;
+        
+        const players = Object.values(this.currentState.allPlayers);
+        const playerTeam = this.currentState.playerTeam;
+        const teammates = players.filter(p => 
+            p.team === playerTeam && 
+            p.name !== this.currentState.playerName
+        );
+        const enemies = players.filter(p => p.team !== playerTeam);
+        
+        // Situação: Múltiplos teammates com HP baixo
+        const lowHealthTeammates = teammates.filter(p => 
+            p.state?.health > 0 && p.state?.health < 30
+        );
+        
+        if (lowHealthTeammates.length >= 2) {
+            situations.push({
+                type: 'team_low_health',
+                severity: 'high',
+                data: {
+                    count: lowHealthTeammates.length,
+                    players: lowHealthTeammates.map(p => ({ name: p.name, health: p.state.health }))
+                }
+            });
+        }
+        
+        // Situação: Desvantagem numérica
+        const aliveTeammates = teammates.filter(p => p.state?.health > 0);
+        const aliveEnemies = enemies.filter(p => p.state?.health > 0);
+        
+        if (aliveTeammates.length < aliveEnemies.length - 1) {
+            situations.push({
+                type: 'numerical_disadvantage',
+                severity: 'critical',
+                data: {
+                    allies: aliveTeammates.length + 1, // +1 para o próprio jogador
+                    enemies: aliveEnemies.length,
+                    deficit: aliveEnemies.length - (aliveTeammates.length + 1)
+                }
+            });
+        }
+        
+        // Situação: Time economicamente quebrado
+        const avgTeamMoney = teammates.reduce((sum, p) => sum + (p.state?.money || 0), 0) / teammates.length;
+        if (avgTeamMoney < 1000 && this.currentState.playerMoney < 1000) {
+            situations.push({
+                type: 'team_economy_crisis',
+                severity: 'high',
+                data: {
+                    avgMoney: Math.round(avgTeamMoney),
+                    playerMoney: this.currentState.playerMoney
+                }
+            });
+        }
+        
+        return situations;
     }
     
     // Reset detector
@@ -493,4 +534,4 @@ class EventDetector {
     }
 }
 
-module.exports = EventDetector;
+module.exports = EventDetector; 
