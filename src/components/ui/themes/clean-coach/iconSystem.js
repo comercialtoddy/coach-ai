@@ -1,19 +1,27 @@
 /**
  * CS2 Coach AI - Sistema de Ícones
  * Sistema completo para carregar e exibir ícones dinamicamente no HUB
+ * ATUALIZADO: Caminhos corrigidos para resolver ERR_FILE_NOT_FOUND
  */
 
 class IconSystem {
     constructor() {
         this.iconCache = new Map();
-        this.basePath = './database'; // Corrigido: sem ../ para funcionar corretamente
+        this.basePath = 'src/database';
         this.iconMappings = this.createIconMappings();
-        this.pendingIcons = new Map(); // Para rastrear ícones sendo carregados
+        this.pendingIcons = new Map();
         this.init();
     }
 
     init() {
         console.log('[ICON SYSTEM] Inicializado com', Object.keys(this.iconMappings).length, 'mapeamentos');
+        this.loadIcon('ak47').then(svg => {
+            if (svg) {
+                console.log('[ICON SYSTEM] ✅ Teste de caminho de ícone bem-sucedido.');
+            } else {
+                console.error('[ICON SYSTEM] ❌ Falha no teste de caminho de ícone. Verifique o basePath.');
+            }
+        });
     }
 
     /**
@@ -145,12 +153,10 @@ class IconSystem {
     }
 
     /**
-     * Carrega um ícone SVG - VERSÃO ROBUSTA COM MÚLTIPLOS CAMINHOS
+     * Carrega um ícone SVG - VERSÃO ROBUSTA COM CAMINHOS CORRIGIDOS
      */
     async loadIcon(iconKey) {
-        // Verificar cache primeiro
         if (this.iconCache.has(iconKey)) {
-            console.log(`[ICON] Carregado do cache: ${iconKey}`);
             return this.iconCache.get(iconKey);
         }
 
@@ -160,41 +166,33 @@ class IconSystem {
             return null;
         }
 
-        // Tentar múltiplos caminhos possíveis
-        const pathsToTry = [
-            `./database/${iconPath}`,
-            `../database/${iconPath}`,
-            `../../database/${iconPath}`,
-            `database/${iconPath}`,
-            iconPath // caminho direto
-        ];
+        const fullPath = `${this.basePath}/${iconPath}`;
 
-        console.log(`[ICON] Tentando carregar ${iconKey} com caminhos:`, pathsToTry);
-
-        for (const fullPath of pathsToTry) {
-            try {
-                console.log(`[ICON] Tentando: ${fullPath}`);
-                const response = await fetch(fullPath);
-                
-                if (response.ok) {
-                    const svgContent = await response.text();
-                    
-                    // Cache do ícone
+        try {
+            console.log(`[ICON] Tentando carregar: ${fullPath}`);
+            const relativePath = `../../${fullPath}`;
+            const response = await fetch(relativePath);
+            
+            if (response.ok) {
+                const svgContent = await response.text();
+                this.iconCache.set(iconKey, svgContent);
+                console.log(`[ICON] ✅ Carregado com sucesso: ${iconKey} de ${relativePath}`);
+                return svgContent;
+            } else {
+                console.error(`[ICON] ❌ Falhou (${response.status}) ao carregar: ${relativePath}`);
+                const altResponse = await fetch(`../../../${fullPath}`);
+                if(altResponse.ok) {
+                    const svgContent = await altResponse.text();
                     this.iconCache.set(iconKey, svgContent);
-                    
-                    console.log(`[ICON] ✅ Carregado com sucesso: ${iconKey} de ${fullPath}`);
                     return svgContent;
                 }
                 
-                console.log(`[ICON] ❌ Falhou (${response.status}): ${fullPath}`);
-                
-            } catch (error) {
-                console.log(`[ICON] ❌ Erro em ${fullPath}:`, error.message);
+                return null;
             }
+        } catch (error) {
+            console.error(`[ICON] ❌ Erro catastrófico em ${fullPath}:`, error.message);
+            return null;
         }
-        
-        console.error(`[ICON] ❌ Falha total ao carregar ${iconKey} - todos os caminhos falharam`);
-        return null;
     }
 
     /**
@@ -245,38 +243,30 @@ class IconSystem {
         
         let processedText = text;
         
-        // Regex para encontrar padrões de ícones: {icon:nome}
         const iconPattern = /\{icon:([^}]+)\}/gi;
-        let match;
         
-        // Usar while loop para garantir que TODOS os padrões sejam processados
-        while ((match = iconPattern.exec(text)) !== null) {
-            const [fullMatch, iconKey] = match;
-            console.log('[ICON] Processando:', fullMatch, '->', iconKey);
+        const matches = text.match(iconPattern) || [];
+
+        for (const match of matches) {
+            const iconKey = match.replace(/\{icon:|\}/g, '').trim();
+            console.log('[ICON] Processando:', match, '->', iconKey);
             
             try {
                 const svgContent = await this.loadIcon(iconKey);
                 
                 if (svgContent) {
-                    // Criar HTML do ícone diretamente
                     const iconHtml = `<span class="icon-container inline-icon" style="display: inline-flex; align-items: center; width: 18px; height: 18px; margin: 0 3px; vertical-align: middle;">${svgContent}</span>`;
                     
-                    // Substituir TODAS as ocorrências do padrão
-                    processedText = processedText.replaceAll(fullMatch, iconHtml);
+                    processedText = processedText.replaceAll(match, iconHtml);
                     console.log('[ICON] ✅ Substituído com sucesso:', iconKey);
                 } else {
                     console.warn('[ICON] ❌ Não foi possível carregar:', iconKey);
-                    // IMPORTANTE: Remover TODAS as ocorrências do padrão mesmo se não carregou
-                    processedText = processedText.replaceAll(fullMatch, `<span style="color: #ff6666; font-size: 12px;">[${iconKey}?]</span>`);
+                    processedText = processedText.replaceAll(match, `<span style="color: #ff6666; font-size: 12px;">[${iconKey}?]</span>`);
                 }
             } catch (error) {
                 console.error('[ICON] ❌ Erro ao processar', iconKey, ':', error);
-                // IMPORTANTE: Remover TODAS as ocorrências do padrão em caso de erro
-                processedText = processedText.replaceAll(fullMatch, `<span style="color: #ff6666; font-size: 12px;">[${iconKey}!]</span>`);
+                processedText = processedText.replaceAll(match, `<span style="color: #ff6666; font-size: 12px;">[${iconKey}!]</span>`);
             }
-            
-            // Reset regex para próxima iteração
-            iconPattern.lastIndex = 0;
         }
 
         // SEGUNDA PASSADA: Garantir que nenhum padrão {icon:*} sobrou
@@ -421,7 +411,7 @@ class IconSystem {
             console.log(`[ICON ROBUST] 🔄 Tentativa ${attempts}/${maxAttempts}`);
             
             // Encontrar TODOS os padrões
-            const patterns = processedText.match(/{icon:[^}]*}/gi) || [];
+            const patterns = Array.from(new Set(processedText.match(/{icon:[^}]*}/gi) || []));
             console.log('[ICON ROBUST] 📋 Padrões encontrados:', patterns);
             
             for (const pattern of patterns) {
@@ -436,11 +426,8 @@ class IconSystem {
                         const iconHtml = `<span class="icon-container inline-icon" style="display: inline-flex; align-items: center; width: 18px; height: 18px; margin: 0 3px; vertical-align: middle;">${svgContent}</span>`;
                         
                         // Substituir TODAS as ocorrências específicas
-                        const beforeCount = (processedText.match(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
                         processedText = processedText.replaceAll(pattern, iconHtml);
-                        const afterCount = (processedText.match(new RegExp(pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
                         
-                        console.log(`[ICON ROBUST] ✅ ${iconKey}: ${beforeCount} → ${afterCount} (${beforeCount - afterCount} substituições)`);
                     } else {
                         // Substituir por indicador de erro mas SEM colchetes
                         const errorIndicator = `<span style="color: #ff9999; font-size: 11px; text-decoration: line-through;">${iconKey}</span>`;

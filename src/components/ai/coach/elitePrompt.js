@@ -4,8 +4,8 @@
  * Integra otimização de tokens e inferência estratégica
  */
 
-const TokenOptimizer = require('../utils/tokenOptimizer.js');
-const StrategicInference = require('../utils/strategicInference.js');
+const TokenOptimizer = require('../tokenOptimizer.js');
+const StrategicInference = require('../strategicInference.js');
 
 class ElitePromptSystem {
     constructor() {

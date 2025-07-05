@@ -3,11 +3,10 @@
  * Sistema de análise automática com controle de quota Gemini
  */
 
-const { buildPromptWithGSI } = require('../coach/prompt.js');
-const ElitePromptSystem = require('../coach/elitePrompt.js');
-const RoundDatabase = require('../database/roundDatabase.js');
+const ElitePromptSystem = require('./coach/elitePrompt.js');
+const RoundDatabase = require('./database/roundDatabase.js');
 const EventDetector = require('./eventDetector.js');
-const GeminiMemory = require('../database/geminiMemory.js');
+const GeminiMemory = require('./database/geminiMemory.js');
 const SmartAnalysisTrigger = require('./smartAnalysisTrigger.js');
 
 class AutoAnalyzer {
@@ -159,7 +158,7 @@ class AutoAnalyzer {
             console.log(`[ELITE_PROMPT] Usando sistema Tier 1 - Tokens estimados: ${promptData.metadata.estimatedTokens}`);
         } catch (error) {
             console.log(`[FALLBACK] Elite system failed, using traditional prompt:`, error.message);
-            promptData = buildPromptWithGSI(analysisType, enrichedGameData, enhancedContext);
+            // promptData = buildPromptWithGSI(analysisType, enrichedGameData, enhancedContext); // Fallback removed
         }
         
         console.log(`[DEBUG] System Prompt Length: ${promptData.systemPrompt.length} chars`);
@@ -692,6 +691,89 @@ Com base em todos esses dados, forneça:
             memory: this.geminiMemory.getStats(),
             smartTrigger: this.smartTrigger.getStats()
         };
+    }
+    
+    // NOVO: Método para análise completa manual via IPC
+    async performCompleteAnalysis(gameData, analysisType = 'manual_analysis', context = {}) {
+        try {
+            console.log(`[MANUAL_ANALYSIS] Iniciando análise completa: ${analysisType}`);
+            
+            // Verificar se há dados suficientes
+            if (!gameData || Object.keys(gameData).length === 0) {
+                console.log('[MANUAL_ANALYSIS] Usando dados do último estado conhecido');
+                gameData = this.lastGameState || {};
+            }
+            
+            // Enriquecer dados com contexto do banco de dados
+            let enrichedGameData = { ...gameData };
+            if (this.roundDatabase && this.roundDatabase.currentRound.startTime) {
+                enrichedGameData.roundContext = this.roundDatabase.getAnalysisContext();
+            }
+            
+            // Obter contexto de memória
+            const playerName = gameData.player?.name || 'Player';
+            const memoryContext = this.geminiMemory.getMemoryContext(analysisType, enrichedGameData, playerName);
+            
+            // Preparar contexto completo
+            let fullContext = JSON.stringify(context);
+            if (memoryContext) {
+                fullContext = memoryContext + '\n\n' + fullContext;
+            }
+            
+            // Usar sistema Elite de prompts
+            const promptData = this.elitePromptSystem.generateElitePrompt(
+                analysisType, 
+                enrichedGameData, 
+                fullContext
+            );
+            
+            console.log(`[MANUAL_ANALYSIS] Prompt Elite gerado - Tokens: ${promptData.metadata.estimatedTokens}`);
+            
+            // Gerar resposta
+            const response = await this.geminiClient.generateResponse(
+                promptData.userPrompt,
+                promptData.systemPrompt,
+                promptData.geminiConfig || {}
+            );
+            
+            if (!response || response.trim().length === 0) {
+                console.log('[MANUAL_ANALYSIS] Resposta vazia do Gemini');
+                return { 
+                    success: false, 
+                    error: 'Análise não gerou resposta' 
+                };
+            }
+            
+            // Salvar na memória
+            const conversationId = `${playerName}_manual_${Date.now()}`;
+            this.geminiMemory.addConversation(
+                conversationId,
+                playerName,
+                analysisType,
+                fullContext,
+                response,
+                enrichedGameData
+            );
+            
+            // Exibir resultado
+            this.displayAutoInsight(response, analysisType);
+            
+            console.log(`[MANUAL_ANALYSIS] ✅ Análise completa gerada com sucesso`);
+            
+            return { 
+                success: true, 
+                analysis: response,
+                type: analysisType,
+                timestamp: Date.now() 
+            };
+            
+        } catch (error) {
+            console.error('[MANUAL_ANALYSIS] ❌ Erro na análise completa:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Erro desconhecido na análise' 
+            };
+        }
     }
     
     // NOVO: Avaliar efetividade das respostas baseado no resultado do round

@@ -1,0 +1,135 @@
+{
+  "analysis": {
+    "frequency": "medium",
+    "autoAnalysisEnabled": true,
+    "smartTriggersEnabled": true,
+    "focusAreas": [
+      "positioning",
+      "economy",
+      "tactics",
+      "utility"
+    ],
+    "maxAnalysisPerRound": 2,
+    "criticalEventsOnly": false
+  },
+  "coaching": {
+    "style": "balanced",
+    "personality": "supportive",
+    "detailLevel": "medium",
+    "encouragementEnabled": true,
+    "constructiveCriticism": true,
+    "proactiveAdvice": true
+  },
+  "voice": {
+    "enabled": true,
+    "voice": "male",
+    "language": "en-US",
+    "rate": 1.2,
+    "pitch": 1,
+    "volume": 0.7,
+    "criticalOnly": false,
+    "interruptions": true
+  },
+  "overlay": {
+    "enabled": true,
+    "opacity": 0.9,
+    "position": "top-right",
+    "size": "medium",
+    "theme": "dark",
+    "animationsEnabled": true,
+    "iconsEnabled": true,
+    "fadeOutDelay": 10000
+  },
+  "performance": {
+    "tokenOptimization": true,
+    "cacheEnabled": true,
+    "rateLimiting": true,
+    "maxConcurrentRequests": 2,
+    "requestTimeout": 5000,
+    "memoryOptimization": true
+  },
+  "game": {
+    "gsiEnabled": true,
+    "ocrEnabled": false,
+    "apiIntegration": false,
+    "steamIntegration": false,
+    "trackerggIntegration": false,
+    "hltvIntegration": false
+  },
+  "filters": {
+    "minimumConfidence": 70,
+    "spamProtection": true,
+    "duplicateFilter": true,
+    "contextualFiltering": true,
+    "priorityLevels": {
+      "critical": true,
+      "high": true,
+      "medium": true,
+      "low": false
+    }
+  },
+  "advanced": {
+    "strategicInference": true,
+    "predictiveAnalysis": true,
+    "patternRecognition": true,
+    "adaptiveLearning": true,
+    "customPrompts": false,
+    "debugMode": false
+  },
+  "personalization": {
+    "playerName": "",
+    "preferredRole": "any",
+    "experienceLevel": "intermediate",
+    "preferredMaps": [],
+    "playstyle": "balanced",
+    "skillAreas": {
+      "aim": 5,
+      "positioning": 5,
+      "gamesense": 5,
+      "communication": 5,
+      "utility": 5,
+      "economy": 5
+    }
+  },
+  "notifications": {
+    "enabled": true,
+    "types": {
+      "roundStart": true,
+      "bombPlanted": true,
+      "economyWarning": true,
+      "tacticalAdvice": true,
+      "performanceUpdate": false,
+      "achievements": false
+    },
+    "cooldowns": {
+      "roundStart": 15000,
+      "bombPlanted": 5000,
+      "economyWarning": 20000,
+      "tacticalAdvice": 10000,
+      "performanceUpdate": 30000,
+      "achievements": 60000
+    }
+  },
+  "privacy": {
+    "dataCollection": true,
+    "anonymousStats": true,
+    "cloudSync": false,
+    "localOnly": true,
+    "autoCleanup": true,
+    "retentionDays": 30
+  },
+  "shortcuts": {
+    "toggleOverlay": "F9",
+    "toggleVoice": "F8",
+    "toggleAnalysis": "F7",
+    "manualAnalysis": "F6",
+    "clearChat": "F5",
+    "emergencyStop": "Ctrl+Shift+F12"
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-01-05T12:00:00.000Z",
+    "lastModified": "2025-07-05T13:05:45.276Z",
+    "migrationLevel": 1
+  }
+}

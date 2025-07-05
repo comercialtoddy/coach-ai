@@ -30,7 +30,7 @@ class GeminiMemory {
         this.memoryRetentionDays = 30; // Dias para manter memória
         
         // Sistema de persistência
-        this.persistenceFile = persistenceFile || path.join(__dirname, '../data/gemini_memory.json');
+        this.persistenceFile = persistenceFile || path.join(__dirname, '../../data/gemini_memory.json');
         this.lastSaveTime = Date.now();
         this.autoSaveInterval = 300000; // 5 minutos
         

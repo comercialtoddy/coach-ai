@@ -2,7 +2,7 @@
   "name": "coach-ai",
   "version": "1.0.0",
   "description": "CS2 Competitive Overlay with AI Coach Integration",
-  "main": "src/main/main.js",
+  "main": "src/components/core/index.js",
   "scripts": {
     "start": "electron .",
     "dev": "cross-env NODE_ENV=development electron .",
@@ -32,7 +32,13 @@
     "dotenv": "^16.6.1",
     "node-cache": "^5.1.2",
     "screenshot-desktop": "^1.15.0",
-    "sharp": "^0.33.0"
+    "sharp": "^0.33.0",
+    "tesseract.js": "^5.1.0",
+    "speaker": "^0.5.4",
+    "say": "^0.16.0"
+  },
+  "optionalDependencies": {
+    "robotjs": "^0.6.0"
   },
   "build": {
     "appId": "com.coachai.cs2overlay",
@@ -41,7 +47,8 @@
       "output": "dist"
     },
     "files": [
-      "src/**/*",
+      "src/components/**/*",
+      "src/components/config/**/*",
       "package.json"
     ],
     "win": {

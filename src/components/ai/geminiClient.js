@@ -24,7 +24,7 @@ class GeminiClient {
     
     loadApiKey() {
         try {
-            const configPath = path.join(__dirname, '../config/gemini.key');
+            const configPath = path.join(__dirname, '../../components/config/gemini.key');
             if (fs.existsSync(configPath)) {
                 return fs.readFileSync(configPath, 'utf8').trim();
             }

@@ -4,7 +4,7 @@
  */
 
 const axios = require('axios');
-const config = require('../config/environment');
+const config = require('../../config/environment');
 
 class TrackerGgClient {
     constructor(apiKey = null) {
