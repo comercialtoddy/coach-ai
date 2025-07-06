@@ -93,7 +93,9 @@ class GeminiClient {
             const fullPrompt = this.buildFullPrompt(userPrompt, systemPrompt, options);
             
             // Gerar resposta
+            console.log('Gemini está pensando...'); // Indicador de início de processamento
             const result = await this.model.generateContent(fullPrompt);
+            console.log('Gemini terminou de pensar.'); // Indicador de fim de processamento
             const response = result.response;
             
             // Log crítico apenas se houver problema

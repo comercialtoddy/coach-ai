@@ -9,7 +9,7 @@ const path = require('path');
 const fs = require('fs');
 const { MASTER_COACH_PROMPT } = require('../ai/coach/elitePrompt.js');
 const GeminiClient = require('../ai/geminiClient.js');
-const AutoAnalyzer = require('../ai/autoAnalyzer.js');
+const IntelligentOrchestrator = require('../ai/intelligentOrchestrator.js');
 const ExternalAPIIntegration = require('../ai/externalApiIntegration.js');
 const OCRSystem = require('../ai/ocrSystem.js');
 const TextToSpeechSystem = require('../ai/textToSpeech.js');
@@ -29,7 +29,7 @@ class CoachAIApp {
         this.ttsSystem = null;
         this.elitePromptSystem = null;
         this.geminiClient = null;
-        this.autoAnalyzer = null;
+        this.intelligentOrchestrator = null;
         
         this.init();
     }
@@ -212,10 +212,10 @@ class CoachAIApp {
                 console.log('[CORE] ✅ TTS System inicializado');
             }
 
-            // Inicializar AutoAnalyzer (depende de geminiClient e overlayWindow)
+            // Inicializar Intelligent Orchestrator (depende de geminiClient e overlayWindow)
             if (this.overlayWindow && this.geminiClient) {
-                this.autoAnalyzer = new AutoAnalyzer(this.geminiClient, this.overlayWindow);
-                console.log('[CORE] ✅ AutoAnalyzer inicializado');
+                this.intelligentOrchestrator = new IntelligentOrchestrator(this.geminiClient, this.overlayWindow);
+                console.log('[CORE] ✅ Intelligent Orchestrator inicializado');
             }
 
             console.log('[CORE] ✅ Todos os sistemas principais inicializados com sucesso');
@@ -290,11 +290,11 @@ class CoachAIApp {
     }
 
     async triggerManualAnalysis() {
-        if (this.autoAnalyzer) {
+        if (this.intelligentOrchestrator) {
             try {
                 // Usar dados GSI mais recentes se disponíveis
                 const gameData = {}; // Seria obtido do último GSI recebido
-                const result = await this.autoAnalyzer.performCompleteAnalysis(
+                const result = await this.intelligentOrchestrator.performManualAnalysis(
                     gameData,
                     'manual_analysis',
                     { trigger: 'hotkey' }
@@ -376,7 +376,7 @@ class CoachAIApp {
         baseSettings.systems = {
             userConfig: this.userConfig ? this.userConfig.getConfigStats() : null,
             geminiClient: this.geminiClient ? this.geminiClient.getStats() : null,
-            autoAnalyzer: this.autoAnalyzer ? this.autoAnalyzer.getRealtimeStats() : null,
+            intelligentOrchestrator: this.intelligentOrchestrator ? this.intelligentOrchestrator.getStatus() : null,
             apiIntegration: this.apiIntegration ? this.apiIntegration.getStats() : null,
             ocrSystem: this.ocrSystem ? this.ocrSystem.getStatus() : null,
             ttsSystem: this.ttsSystem ? this.ttsSystem.getStatus() : null,
@@ -388,8 +388,8 @@ class CoachAIApp {
 
     // Cleanup
     destroy() {
-        if (this.autoAnalyzer) {
-            this.autoAnalyzer.destroy();
+        if (this.intelligentOrchestrator) {
+            this.intelligentOrchestrator.destroy();
         }
 
         if (this.gsiServer) {
@@ -470,11 +470,11 @@ class CoachAIApp {
             // Send data to overlay
             this.sendToOverlay('game-data', gameData);
             
-            // Trigger auto analysis if enabled
-            if (this.autoAnalyzer && this.userConfig) {
+            // Trigger intelligent orchestration if enabled
+            if (this.intelligentOrchestrator && this.userConfig) {
                 const config = this.userConfig.getConfig();
                 if (config.analysis && config.analysis.autoAnalysisEnabled) {
-                    this.autoAnalyzer.updateGameState(gameData);
+                    this.intelligentOrchestrator.updateGameState(gameData);
                 }
             }
             
@@ -529,15 +529,15 @@ class CoachAIApp {
         // Master perform analysis
         ipcMain.handle('master-perform-analysis', async (event, analysisData) => {
             try {
-                if (this.autoAnalyzer) {
-                    const result = await this.autoAnalyzer.performCompleteAnalysis(
+                if (this.intelligentOrchestrator) {
+                    const result = await this.intelligentOrchestrator.performManualAnalysis(
                         analysisData.gameData,
                         analysisData.type,
                         analysisData.context
                     );
                     return result;
                 }
-                return { success: false, error: 'AutoAnalyzer not available' };
+                return { success: false, error: 'Intelligent Orchestrator not available' };
             } catch (error) {
                 console.error('[IPC] Error performing analysis:', error);
                 return { success: false, error: error.message };
@@ -585,7 +585,94 @@ class CoachAIApp {
             }
         });
 
-        console.log('[IPC] ✅ All IPC handlers registered');
+        // ===========================================
+        // INTELLIGENT ORCHESTRATOR TESTING HANDLERS
+        // ===========================================
+
+        // Test orchestrator system
+        ipcMain.handle('test-orchestrator-system', async (event) => {
+            try {
+                if (this.intelligentOrchestrator) {
+                    await this.intelligentOrchestrator.testSystem();
+                    return { success: true, data: 'Orchestrator test completed' };
+                }
+                return { success: false, error: 'Intelligent Orchestrator not available' };
+            } catch (error) {
+                console.error('[IPC] Error testing orchestrator:', error);
+                return { success: false, error: error.message };
+            }
+        });
+
+        // Test Gemini connection
+        ipcMain.handle('test-gemini-connection', async (event) => {
+            try {
+                if (this.intelligentOrchestrator) {
+                    const result = await this.intelligentOrchestrator.testGeminiConnection();
+                    return { success: result, response: result ? 'Gemini connection OK' : 'Gemini connection failed' };
+                }
+                return { success: false, error: 'Intelligent Orchestrator not available' };
+            } catch (error) {
+                console.error('[IPC] Error testing Gemini:', error);
+                return { success: false, error: error.message };
+            }
+        });
+
+        // Force coaching test
+        ipcMain.handle('force-coaching-test', async (event) => {
+            try {
+                if (this.intelligentOrchestrator) {
+                    await this.intelligentOrchestrator.forceTestCoaching();
+                    return { success: true };
+                }
+                return { success: false, error: 'Intelligent Orchestrator not available' };
+            } catch (error) {
+                console.error('[IPC] Error forcing coaching test:', error);
+                return { success: false, error: error.message };
+            }
+        });
+
+        // Debug event detection
+        ipcMain.handle('debug-event-detection', async (event) => {
+            try {
+                if (this.intelligentOrchestrator) {
+                    await this.intelligentOrchestrator.debugEventDetection();
+                    return { success: true, events: 'Event detection debug completed' };
+                }
+                return { success: false, error: 'Intelligent Orchestrator not available' };
+            } catch (error) {
+                console.error('[IPC] Error debugging events:', error);
+                return { success: false, error: error.message };
+            }
+        });
+
+        // Get orchestrator status
+        ipcMain.handle('get-orchestrator-status', async (event) => {
+            try {
+                if (this.intelligentOrchestrator) {
+                    return this.intelligentOrchestrator.getStatus();
+                }
+                return { error: 'Intelligent Orchestrator not available' };
+            } catch (error) {
+                console.error('[IPC] Error getting orchestrator status:', error);
+                return { error: error.message };
+            }
+        });
+
+        // Test text cleaning for TTS
+        ipcMain.handle('test-text-cleaning', async (event, text) => {
+            try {
+                if (this.intelligentOrchestrator) {
+                    const cleanedText = this.intelligentOrchestrator.cleanTextForTTS(text);
+                    return { success: true, cleanedText };
+                }
+                return { success: false, error: 'Intelligent Orchestrator not available' };
+            } catch (error) {
+                console.error('[IPC] Error testing text cleaning:', error);
+                return { success: false, error: error.message };
+            }
+        });
+
+        console.log('[IPC] ✅ All IPC handlers registered (including test handlers)');
     }
 }
 

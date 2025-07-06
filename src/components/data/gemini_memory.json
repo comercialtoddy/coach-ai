@@ -1,0 +1,52 @@
+{
+  "conversations": [],
+  "responseMemory": [],
+  "playerProfiles": [
+    [
+      "Player",
+      {
+        "name": "Player",
+        "preferences": {
+          "communication": "balanced",
+          "detail": "medium",
+          "timing": "realtime",
+          "focus": "tactical",
+          "personality": "coach"
+        },
+        "playstyle": {
+          "aggression": 0.5,
+          "teamwork": 0.5,
+          "economy": 0.5,
+          "positioning": 0.5,
+          "aim": 0.5,
+          "clutch": 0.5
+        },
+        "adaptations": {
+          "responseStyle": "direct",
+          "encouragement": "moderate",
+          "criticalness": "balanced",
+          "technicality": "medium"
+        },
+        "learningHistory": [],
+        "lastUpdate": 1751729545763
+      }
+    ]
+  ],
+  "situationPatterns": [],
+  "quickLookup": {
+    "recentConversations": [],
+    "commonSituations": [],
+    "playerPreferences": [],
+    "successfulAdvices": [],
+    "failedAdvices": []
+  },
+  "stats": {
+    "totalConversations": 0,
+    "totalResponses": 0,
+    "memoryHits": 0,
+    "accurateAdvices": 0,
+    "inaccurateAdvices": 0,
+    "averageResponseTime": 0
+  },
+  "savedAt": 1751731345964
+}

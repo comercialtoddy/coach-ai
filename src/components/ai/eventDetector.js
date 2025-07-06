@@ -30,48 +30,111 @@ class EventDetector {
             lastEconomyWarning: 0,
             roundStartDetected: false,
             bombPlantDetected: false,
-            clutchDetected: false
+            clutchDetected: false,
+            lastSyntheticEvent: 0  // Para teste do sistema
         };
     }
     
     // Atualizar estado e detectar eventos
     updateState(gameData) {
+        console.log('[EVENT_DETECTOR] 🔍 updateState called');
+        
         this.previousState = this.currentState;
         this.currentState = this.parseGameState(gameData);
         
+        console.log('[EVENT_DETECTOR] 📊 Current state:', {
+            phase: this.currentState?.roundPhase,
+            health: this.currentState?.playerHealth,
+            money: this.currentState?.playerMoney,
+            kills: this.currentState?.playerKills,
+            round: this.currentState?.roundNumber
+        });
+        
         if (!this.previousState) {
+            console.log('[EVENT_DETECTOR] ⏸️ No previous state - skipping event detection');
             return []; // Primeira atualização, sem eventos ainda
         }
+        
+        console.log('[EVENT_DETECTOR] 📈 Previous state:', {
+            phase: this.previousState?.roundPhase,
+            health: this.previousState?.playerHealth,
+            money: this.previousState?.playerMoney,
+            kills: this.previousState?.playerKills,
+            round: this.previousState?.roundNumber
+        });
         
         const detectedEvents = [];
         
         // Detectar início de round
+        console.log('[EVENT_DETECTOR] 🎯 Checking round start...');
         const roundStart = this.detectRoundStart();
-        if (roundStart) detectedEvents.push(roundStart);
+        if (roundStart) {
+            console.log('[EVENT_DETECTOR] ✅ Round start detected:', roundStart);
+            detectedEvents.push(roundStart);
+        }
         
         // Detectar eventos de kill
+        console.log('[EVENT_DETECTOR] ⚔️ Checking kill events...');
         const killEvents = this.detectKillEvents();
-        if (killEvents.length > 0) detectedEvents.push(...killEvents);
+        if (killEvents.length > 0) {
+            console.log('[EVENT_DETECTOR] ✅ Kill events detected:', killEvents);
+            detectedEvents.push(...killEvents);
+        }
         
         // Detectar HP crítico
+        console.log('[EVENT_DETECTOR] ❤️ Checking health events...');
         const healthEvent = this.detectHealthEvents();
-        if (healthEvent) detectedEvents.push(healthEvent);
+        if (healthEvent) {
+            console.log('[EVENT_DETECTOR] ✅ Health event detected:', healthEvent);
+            detectedEvents.push(healthEvent);
+        }
         
         // Detectar mudanças econômicas
+        console.log('[EVENT_DETECTOR] 💰 Checking economy events...');
         const economyEvent = this.detectEconomyEvents();
-        if (economyEvent) detectedEvents.push(economyEvent);
+        if (economyEvent) {
+            console.log('[EVENT_DETECTOR] ✅ Economy event detected:', economyEvent);
+            detectedEvents.push(economyEvent);
+        }
         
         // Detectar eventos de bomba
+        console.log('[EVENT_DETECTOR] 💣 Checking bomb events...');
         const bombEvents = this.detectBombEvents();
-        if (bombEvents.length > 0) detectedEvents.push(...bombEvents);
+        if (bombEvents.length > 0) {
+            console.log('[EVENT_DETECTOR] ✅ Bomb events detected:', bombEvents);
+            detectedEvents.push(...bombEvents);
+        }
         
         // Detectar situações de clutch
+        console.log('[EVENT_DETECTOR] 🎯 Checking clutch situation...');
         const clutchEvent = this.detectClutchSituation();
-        if (clutchEvent) detectedEvents.push(clutchEvent);
+        if (clutchEvent) {
+            console.log('[EVENT_DETECTOR] ✅ Clutch event detected:', clutchEvent);
+            detectedEvents.push(clutchEvent);
+        }
         
         // Detectar fim de round
+        console.log('[EVENT_DETECTOR] 🏁 Checking round end...');
         const roundEnd = this.detectRoundEnd();
-        if (roundEnd) detectedEvents.push(roundEnd);
+        if (roundEnd) {
+            console.log('[EVENT_DETECTOR] ✅ Round end detected:', roundEnd);
+            detectedEvents.push(roundEnd);
+        }
+
+        // TESTE: Evento sintético para verificar funcionamento
+        const syntheticEvent = this.detectSyntheticEvent();
+        if (syntheticEvent) {
+            console.log('[EVENT_DETECTOR] 🧪 Synthetic event detected:', syntheticEvent);
+            detectedEvents.push(syntheticEvent);
+        }
+        
+        // NOVO: Se nenhum evento foi detectado, adicionar logs detalhados
+        if (detectedEvents.length === 0) {
+            console.log('[EVENT_DETECTOR] ⚠️ No events detected. Detailed analysis:');
+            this.debugEventDetection();
+        } else {
+            console.log(`[EVENT_DETECTOR] 🎉 ${detectedEvents.length} events detected:`, detectedEvents.map(e => e.type));
+        }
         
         return detectedEvents;
     }
@@ -518,6 +581,80 @@ class EventDetector {
         return situations;
     }
     
+    // TESTE: Evento sintético para verificar funcionamento do sistema
+    detectSyntheticEvent() {
+        const now = Date.now();
+        const timeSinceLastSynthetic = now - this.eventTracking.lastSyntheticEvent;
+        
+        // Gerar evento teste a cada 60 segundos (menos frequente)
+        if (timeSinceLastSynthetic > 60000) { // 60 segundos
+            this.eventTracking.lastSyntheticEvent = now;
+            
+            return {
+                type: 'coaching_system_test',
+                priority: 'normal',
+                data: {
+                    context: 'Testando sistema de coaching inteligente',
+                    instruction: 'Forneça uma dica rápida de CS2 para verificar se o sistema está funcionando',
+                    playerName: this.currentState?.playerName || 'Player',
+                    currentHealth: this.currentState?.playerHealth || 100,
+                    currentMoney: this.currentState?.playerMoney || 0,
+                    mapName: this.currentState?.mapName || 'unknown',
+                    roundNumber: this.currentState?.roundNumber || 0
+                }
+            };
+        }
+        
+        return null;
+    }
+
+    // Debug detalhado da detecção de eventos
+    debugEventDetection() {
+        console.log('[DEBUG] === ANÁLISE DETALHADA DE EVENTOS ===');
+        
+        // Debug round start
+        console.log('[DEBUG] Round Start Check:');
+        console.log(`  - Current phase: ${this.currentState?.roundPhase}`);
+        console.log(`  - Previous phase: ${this.previousState?.roundPhase}`);
+        console.log(`  - Round start detected: ${this.eventTracking.roundStartDetected}`);
+        console.log(`  - Condition: ${this.currentState?.roundPhase === 'freezetime'} && ${this.previousState?.roundPhase !== 'freezetime'} && ${!this.eventTracking.roundStartDetected}`);
+        
+        // Debug health events
+        console.log('[DEBUG] Health Events Check:');
+        console.log(`  - Current health: ${this.currentState?.playerHealth}`);
+        console.log(`  - Previous health: ${this.previousState?.playerHealth}`);
+        console.log(`  - Low health threshold: ${this.thresholds.lowHealth}`);
+        console.log(`  - Time since last warning: ${Date.now() - this.eventTracking.lastHealthWarning}ms`);
+        
+        // Debug economy events
+        console.log('[DEBUG] Economy Events Check:');
+        console.log(`  - Current money: ${this.currentState?.playerMoney}`);
+        console.log(`  - Previous money: ${this.previousState?.playerMoney}`);
+        console.log(`  - Money change: ${Math.abs((this.currentState?.playerMoney || 0) - (this.previousState?.playerMoney || 0))}`);
+        console.log(`  - Economy shift threshold: ${this.thresholds.economyShift}`);
+        
+        // Debug kill events
+        console.log('[DEBUG] Kill Events Check:');
+        console.log(`  - Current kills: ${this.currentState?.playerKills}`);
+        console.log(`  - Previous kills: ${this.previousState?.playerKills}`);
+        console.log(`  - Kill difference: ${(this.currentState?.playerKills || 0) - (this.previousState?.playerKills || 0)}`);
+        
+        // Debug bomb events
+        console.log('[DEBUG] Bomb Events Check:');
+        console.log(`  - Current bomb state: ${this.currentState?.bombState}`);
+        console.log(`  - Previous bomb state: ${this.previousState?.bombState}`);
+        console.log(`  - Bomb plant detected: ${this.eventTracking.bombPlantDetected}`);
+        
+        // Debug game data availability
+        console.log('[DEBUG] Data Availability:');
+        console.log(`  - Current state exists: ${!!this.currentState}`);
+        console.log(`  - Previous state exists: ${!!this.previousState}`);
+        console.log(`  - Player data exists: ${!!this.currentState?.playerName}`);
+        console.log(`  - Round data exists: ${!!this.currentState?.roundPhase}`);
+        
+        console.log('[DEBUG] === FIM DA ANÁLISE ===');
+    }
+
     // Reset detector
     reset() {
         this.previousState = null;
@@ -529,7 +666,8 @@ class EventDetector {
             lastEconomyWarning: 0,
             roundStartDetected: false,
             bombPlantDetected: false,
-            clutchDetected: false
+            clutchDetected: false,
+            lastSyntheticEvent: 0
         };
     }
 }

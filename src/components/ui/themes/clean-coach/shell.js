@@ -30,25 +30,25 @@ class CoachAI {
     
     init() {
         this.setupEventListeners();
-        this.initializeAutoAnalyzer();
+        this.initializeIntelligentOrchestrator();
         this.setupMasterIntegrationListeners();
         this.loadUserConfiguration();
         
-        console.log('[INIT] Coach AI Display initialized - Auto insights + Master Integration');
-        console.log('[OVERLAY] Ready for automated CS2 coaching insights');
-        console.log('[ANALYZER] Auto analyzer ready for proactive insights');
+        console.log('[INIT] Coach AI Display initialized - Intelligent Orchestrator + Master Integration');
+        console.log('[OVERLAY] Ready for personalized CS2 coaching insights');
+        console.log('[ORCHESTRATOR] Intelligent orchestrator ready for adaptive coaching');
         console.log('[MASTER] Master Integration listener configured');
         
         // Debug info adicional
         if (window.debugUtils) {
-            window.debugUtils.log('Coach AI Display instance created with Master Integration', 'success');
+            window.debugUtils.log('Coach AI Display instance created with Intelligent Orchestrator', 'success');
         }
     }
     
-    async initializeAutoAnalyzer() {
-        // AutoAnalyzer real está no main process - apenas configurar receptor
-        this.setupAutoInsightListener();
-        console.log('[LISTENER] Auto Analyzer listener configurado');
+    async initializeIntelligentOrchestrator() {
+        // Intelligent Orchestrator está no main process - apenas configurar receptor
+        this.setupIntelligentCoachingListener();
+        console.log('[LISTENER] Intelligent Orchestrator listener configurado');
     }
     
     // NOVO: Configurar listeners do Master Integration
@@ -482,16 +482,23 @@ class CoachAI {
             window.debugUtils.log(`Game data updated: ${JSON.stringify(data, null, 2)}`, 'info');
         }
         
-        // AutoAnalyzer real está rodando no main process - insights virão via IPC
+        // Intelligent Orchestrator está rodando no main process - coaching personalizado via IPC
     }
     
-    setupAutoInsightListener() {
-        // Configurar receptor de insights do AutoAnalyzer (main process)
+    setupIntelligentCoachingListener() {
+        // Configurar receptor de insights do Intelligent Orchestrator (main process)
         if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
             const { ipcRenderer } = require('electron');
             
+            // Listener para coaching inteligente personalizado
+            ipcRenderer.on('intelligent-coaching', (event, data) => {
+                console.log('[INTELLIGENT COACHING RECEIVED]:', data.coaching);
+                this.displayResponse(data.coaching, 'success');
+            });
+            
+            // Listener para insights automáticos (compatibilidade)
             ipcRenderer.on('auto-insight', (event, data) => {
-                console.log('[GEMINI INSIGHT RECEIVED]:', data.insight);
+                console.log('[AUTO INSIGHT RECEIVED]:', data.insight);
                 this.displayResponse(data.insight, 'success');
             });
             
@@ -504,7 +511,7 @@ class CoachAI {
                 }
             });
             
-            console.log('🔗 Auto insight listener configurado via IPC');
+            console.log('🔗 Intelligent Orchestrator listener configurado via IPC');
         }
     }
     
@@ -541,7 +548,16 @@ class CoachAI {
             
             // Teste
             testTTS: (text) => this.speakText(text || 'Test message from CS2 Coach AI'),
-            testDisplay: (message) => this.displayResponse(message || 'Test message', 'success')
+            testDisplay: (message) => this.displayResponse(message || 'Test message', 'success'),
+            
+            // INTELLIGENT ORCHESTRATOR TESTING METHODS
+            testOrchestratorSystem: () => this.testOrchestratorSystem(),
+            testGeminiConnection: () => this.testGeminiConnection(),
+            testTTSSystem: () => this.testTTSSystem(),
+            forceCoachingTest: () => this.forceCoachingTest(),
+            debugEventDetection: () => this.debugEventDetection(),
+            getOrchestratorStatus: () => this.getOrchestratorStatus(),
+            cleanTextForTTSTest: (text) => this.cleanTextForTTSTest(text)
         };
     }
     
@@ -558,8 +574,202 @@ class CoachAI {
         }
     }
     
+    // ===========================================
+    // INTELLIGENT ORCHESTRATOR TESTING METHODS
+    // ===========================================
+    
+    async testOrchestratorSystem() {
+        console.log('[TEST] 🧪 Iniciando teste completo do Intelligent Orchestrator...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                this.displayResponse('Testando sistema Intelligent Orchestrator...', 'normal');
+                
+                // Chamada para testar o sistema completo
+                const result = await ipcRenderer.invoke('test-orchestrator-system');
+                
+                if (result && result.success) {
+                    this.displayResponse('✅ Teste do Orchestrator concluído com sucesso!', 'success');
+                    console.log('[TEST] Resultado:', result.data);
+                } else {
+                    this.displayResponse('❌ Erro no teste do Orchestrator', 'error');
+                    console.error('[TEST] Erro:', result?.error);
+                }
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao testar Orchestrator:', error);
+                this.displayResponse('❌ Erro na comunicação com o sistema', 'error');
+            }
+        }
+    }
+    
+    async testGeminiConnection() {
+        console.log('[TEST] 🔍 Testando conexão com Gemini...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                this.displayResponse('Testando conexão com Gemini...', 'normal');
+                
+                const result = await ipcRenderer.invoke('test-gemini-connection');
+                
+                if (result && result.success) {
+                    this.displayResponse('✅ Conexão com Gemini OK!', 'success');
+                    console.log('[TEST] Resposta do Gemini:', result.response);
+                } else {
+                    this.displayResponse('❌ Erro na conexão com Gemini', 'error');
+                    console.error('[TEST] Erro:', result?.error);
+                }
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao testar Gemini:', error);
+                this.displayResponse('❌ Erro na comunicação com Gemini', 'error');
+            }
+        }
+    }
+    
+    async testTTSSystem() {
+        console.log('[TEST] 🎤 Testando sistema TTS...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                this.displayResponse('Testando sistema TTS...', 'normal');
+                
+                const testMessage = 'Sistema de coaching Counter-Strike 2 funcionando corretamente!';
+                await ipcRenderer.invoke('master-speak', testMessage, 'normal');
+                
+                this.displayResponse('✅ TTS funcionando corretamente!', 'success');
+                console.log('[TEST] TTS testado com sucesso');
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao testar TTS:', error);
+                this.displayResponse('❌ Erro no sistema TTS', 'error');
+            }
+        }
+    }
+    
+    async forceCoachingTest() {
+        console.log('[TEST] 🚀 Forçando teste de coaching...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                this.displayResponse('Forçando geração de coaching...', 'normal');
+                
+                const result = await ipcRenderer.invoke('force-coaching-test');
+                
+                if (result && result.success) {
+                    this.displayResponse('✅ Coaching teste executado!', 'success');
+                    console.log('[TEST] Coaching gerado com sucesso');
+                } else {
+                    this.displayResponse('❌ Erro no teste de coaching', 'error');
+                    console.error('[TEST] Erro:', result?.error);
+                }
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao forçar coaching:', error);
+                this.displayResponse('❌ Erro na geração de coaching', 'error');
+            }
+        }
+    }
+    
+    async debugEventDetection() {
+        console.log('[TEST] 🔍 Debugando detecção de eventos...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                this.displayResponse('Debugando detecção de eventos...', 'normal');
+                
+                const result = await ipcRenderer.invoke('debug-event-detection');
+                
+                if (result && result.success) {
+                    this.displayResponse('✅ Debug de eventos concluído!', 'success');
+                    console.log('[TEST] Eventos detectados:', result.events);
+                } else {
+                    this.displayResponse('❌ Erro no debug de eventos', 'error');
+                    console.error('[TEST] Erro:', result?.error);
+                }
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao debugar eventos:', error);
+                this.displayResponse('❌ Erro no debug de eventos', 'error');
+            }
+        }
+    }
+    
+    async getOrchestratorStatus() {
+        console.log('[TEST] 📊 Obtendo status do Orchestrator...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                const status = await ipcRenderer.invoke('get-orchestrator-status');
+                
+                if (status) {
+                    console.log('[ORCHESTRATOR STATUS]:', status);
+                    this.displayResponse('Status do Orchestrator obtido - veja console', 'success');
+                    return status;
+                } else {
+                    this.displayResponse('❌ Erro ao obter status', 'error');
+                }
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao obter status:', error);
+                this.displayResponse('❌ Erro na comunicação', 'error');
+            }
+        }
+    }
+    
+    async cleanTextForTTSTest(text) {
+        console.log('[TEST] 🧹 Testando limpeza de texto para TTS...');
+        
+        if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
+            const { ipcRenderer } = require('electron');
+            
+            try {
+                const testText = text || `{
+                    "analysis": "Teste de limpeza",
+                    "recommendation": "**Mantenha** posição *defensiva*",
+                    "data": ["item1", "item2"],
+                    "stats": {
+                        "hp": 100,
+                        "money": 5000
+                    }
+                }`;
+                
+                console.log('[TEST] Texto original:', testText);
+                
+                const result = await ipcRenderer.invoke('test-text-cleaning', testText);
+                
+                if (result && result.success) {
+                    console.log('[TEST] Texto limpo:', result.cleanedText);
+                    this.displayResponse(`Texto limpo: "${result.cleanedText}"`, 'success');
+                    
+                    // Testar TTS com texto limpo
+                    await ipcRenderer.invoke('master-speak', result.cleanedText, 'normal');
+                    
+                } else {
+                    this.displayResponse('❌ Erro na limpeza do texto', 'error');
+                }
+                
+            } catch (error) {
+                console.error('[TEST] Erro ao limpar texto:', error);
+                this.displayResponse('❌ Erro na limpeza de texto', 'error');
+            }
+        }
+    }
+
     destroy() {
-        // AutoAnalyzer cleanup é feito no main process
+        // Intelligent Orchestrator cleanup é feito no main process
         console.log('[SHUTDOWN] Coach AI Display destroyed');
     }
 }

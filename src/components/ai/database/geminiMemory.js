@@ -627,6 +627,24 @@ class GeminiMemory {
         
         console.log('[MEMORY] Memória resetada completamente');
     }
+
+    // Obter perfil do jogador
+    getPlayerProfile(playerName = 'Player') {
+        if (this.playerProfiles.has(playerName)) {
+            return this.playerProfiles.get(playerName);
+        }
+        return null;
+    }
+
+    // Salvar perfil do jogador
+    savePlayerProfile(playerProfile) {
+        if (playerProfile && playerProfile.name) {
+            this.playerProfiles.set(playerProfile.name, playerProfile);
+            this.saveMemory(); // Persistir mudanças
+            return true;
+        }
+        return false;
+    }
 }
 
 module.exports = GeminiMemory; 
