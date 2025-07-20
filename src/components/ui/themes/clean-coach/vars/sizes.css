@@ -1,5 +1,5 @@
 /**
- * CS2 Coach AI - Size Variables
+ * Coach AI - Size Variables
  * Dimensões responsivas para resolução 1920x1080
  */
 
@@ -7,7 +7,7 @@
   /* Fator de escala baseado em viewport */
   --scale-factor: 0.9259vh; /* Aproximadamente 10px em 1080p */
   
-  /* Margens do HUD CS2 (evitar sobreposição) */
+  /* Margens do HUD do jogo (evitar sobreposição) */
   --viewport-margin-x: 2rem;
   --viewport-margin-y: 1.5rem;
   
@@ -56,4 +56,4 @@
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
   --shadow-overlay: 0 8px 32px rgba(0, 0, 0, 0.3);
-} 
+}

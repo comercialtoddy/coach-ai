@@ -1,7 +1,7 @@
 /**
- * CS2 Coach AI - Main Electron Process
- * Processo principal do overlay competitivo
- * ATUALIZADO: Integração completa com sistemas baseados no guia fornecido
+ * Coach AI - Main Electron Process
+ * Processo principal do sistema de coaching inteligente
+ * Sistema modular de análise e coaching com IA
  */
 
 const { app, BrowserWindow, ipcMain, screen, globalShortcut } = require('electron');
@@ -19,7 +19,7 @@ const ElitePromptSystem = require('../ai/coach/elitePrompt.js');
 class CoachAIApp {
     constructor() {
         this.overlayWindow = null;
-        this.gsiServer = null;
+        this.apiServer = null;
         this.isOverlayVisible = true;
 
         // Sistemas principais
@@ -39,7 +39,7 @@ class CoachAIApp {
         app.whenReady().then(async () => {
             this.createOverlayWindow();
             this.setupGlobalShortcuts();
-            this.startGSIServer.bind(this)();
+            this.startAPIServer.bind(this)();
             this.setupIpcHandlers.bind(this)();
 
             // Inicializar sistemas
@@ -292,10 +292,10 @@ class CoachAIApp {
     async triggerManualAnalysis() {
         if (this.intelligentOrchestrator) {
             try {
-                // Usar dados GSI mais recentes se disponíveis
-                const gameData = {}; // Seria obtido do último GSI recebido
+                // Usar dados de análise mais recentes se disponíveis
+            const analysisData = {}; // Seria obtido da última análise
                 const result = await this.intelligentOrchestrator.performManualAnalysis(
-                    gameData,
+                    analysisData,
                     'manual_analysis',
                     { trigger: 'hotkey' }
                 );
@@ -361,7 +361,7 @@ class CoachAIApp {
         const baseSettings = {
             overlayVisible: this.isOverlayVisible,
             aiEnabled: this.geminiClient !== null,
-            gsiConnected: this.gsiServer !== null,
+            apiConnected: this.apiServer !== null,
             shortcuts: {
                 toggleOverlay: 'F9',
                 toggleMouse: 'F10',
@@ -392,8 +392,8 @@ class CoachAIApp {
             this.intelligentOrchestrator.destroy();
         }
 
-        if (this.gsiServer) {
-            this.gsiServer.close();
+        if (this.apiServer) {
+            this.apiServer.close();
         }
 
         if (this.overlayWindow && !this.overlayWindow.isDestroyed()) {
@@ -419,12 +419,12 @@ class CoachAIApp {
         globalShortcut.unregisterAll();
     }
 
-    // MISSING METHOD: GSI Server Setup
-    startGSIServer() {
+    // API Server Setup for data input
+    startAPIServer() {
         const http = require('http');
         
         try {
-            this.gsiServer = http.createServer((req, res) => {
+            this.apiServer = http.createServer((req, res) => {
                 if (req.method === 'POST') {
                     let body = '';
                     
@@ -434,10 +434,10 @@ class CoachAIApp {
                     
                     req.on('end', () => {
                         try {
-                            const gameData = JSON.parse(body);
-                            this.handleCS2Data(gameData);
+                            const inputData = JSON.parse(body);
+                            this.handleInputData(inputData);
                         } catch (error) {
-                            console.error('[GSI] Error parsing JSON:', error);
+                            console.error('[API] Error parsing JSON:', error);
                         }
                         
                         res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -445,41 +445,41 @@ class CoachAIApp {
                     });
                 } else {
                     res.writeHead(200, {'Content-Type': 'text/plain'});
-                    res.end('CS2 Coach AI GSI Server');
+                    res.end('Coach AI API Server');
                 }
             });
             
-            this.gsiServer.listen(3000, () => {
-                console.log('[GSI] ✅ GSI Server listening on port 3000');
+            this.apiServer.listen(3000, () => {
+                console.log('[API] ✅ API Server listening on port 3000');
             });
             
-            this.gsiServer.on('error', (error) => {
-                console.error('[GSI] ❌ Server error:', error);
+            this.apiServer.on('error', (error) => {
+                console.error('[API] ❌ Server error:', error);
             });
             
         } catch (error) {
-            console.error('[GSI] ❌ Failed to start GSI server:', error);
+            console.error('[API] ❌ Failed to start API server:', error);
         }
     }
 
-    // MISSING METHOD: Handle CS2 Game Data
-    handleCS2Data(gameData) {
+    // Handle Input Data from various sources
+    handleInputData(inputData) {
         try {
-            console.log('[GSI] 📊 Game data received');
+            console.log('[API] 📊 Input data received');
             
             // Send data to overlay
-            this.sendToOverlay('game-data', gameData);
+            this.sendToOverlay('input-data', inputData);
             
             // Trigger intelligent orchestration if enabled
             if (this.intelligentOrchestrator && this.userConfig) {
                 const config = this.userConfig.getConfig();
                 if (config.analysis && config.analysis.autoAnalysisEnabled) {
-                    this.intelligentOrchestrator.updateGameState(gameData);
+                    this.intelligentOrchestrator.updateAnalysisState(inputData);
                 }
             }
             
         } catch (error) {
-            console.error('[GSI] ❌ Error handling game data:', error);
+            console.error('[API] ❌ Error handling input data:', error);
         }
     }
 

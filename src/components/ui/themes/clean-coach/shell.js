@@ -1,5 +1,5 @@
 /**
- * CS2 Coach AI - Shell JavaScript
+ * Coach AI - Shell JavaScript
  * Overlay simplificado - ATUALIZADO com integração completa dos novos sistemas
  * Suporte para: Master Integration, TTS, OCR, APIs Externas, Configuração Avançada
  */
@@ -35,7 +35,7 @@ class CoachAI {
         this.loadUserConfiguration();
         
         console.log('[INIT] Coach AI Display initialized - Intelligent Orchestrator + Master Integration');
-        console.log('[OVERLAY] Ready for personalized CS2 coaching insights');
+        console.log('[OVERLAY] Ready for personalized coaching insights');
         console.log('[ORCHESTRATOR] Intelligent orchestrator ready for adaptive coaching');
         console.log('[MASTER] Master Integration listener configured');
         
@@ -240,7 +240,7 @@ class CoachAI {
                 this.displayResponse('Executando análise manual...', 'normal');
                 
                 // Trigger análise manual
-                // O main process vai pegar os dados GSI mais recentes
+                // O main process vai pegar os dados de análise mais recentes
                 const result = await ipcRenderer.invoke('master-perform-analysis', {
                     type: 'manual_analysis',
                     gameData: this.gameData || {},
@@ -460,7 +460,7 @@ class CoachAI {
         
         // Verificar se dados do player estão chegando
         if (!data.player) {
-            console.log('[WARNING] Player data missing - verifique GSI config');
+            console.log('[WARNING] Player data missing - verifique configuração de dados');
         }
         
         console.log('[DATA] Game data received for AI context:', {
@@ -547,7 +547,7 @@ class CoachAI {
             getStatus: () => this.getSystemStatus(),
             
             // Teste
-            testTTS: (text) => this.speakText(text || 'Test message from CS2 Coach AI'),
+            testTTS: (text) => this.speakText(text || 'Test message from Coach AI'),
             testDisplay: (message) => this.displayResponse(message || 'Test message', 'success'),
             
             // INTELLIGENT ORCHESTRATOR TESTING METHODS
@@ -640,7 +640,7 @@ class CoachAI {
             try {
                 this.displayResponse('Testando sistema TTS...', 'normal');
                 
-                const testMessage = 'Sistema de coaching Counter-Strike 2 funcionando corretamente!';
+                const testMessage = 'Sistema de coaching inteligente funcionando corretamente!';
                 await ipcRenderer.invoke('master-speak', testMessage, 'normal');
                 
                 this.displayResponse('✅ TTS funcionando corretamente!', 'success');
@@ -794,4 +794,4 @@ window.addEventListener('beforeunload', () => {
     if (window.CoachAI) {
         window.CoachAI.destroy();
     }
-}); 
+});

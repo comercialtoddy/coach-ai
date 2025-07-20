@@ -1,6 +1,6 @@
 /**
- * CS2 Coach AI - Main Overlay Styles
- * Overlay competitivo limpo e responsivo para 1920x1080
+ * Coach AI - Main Overlay Styles
+ * Estilos principais do overlay inteligente
  */
 
 @import url('./vars/colors.css');
@@ -33,7 +33,7 @@ html, body {
   left: 0;
   width: 100vw;
   height: 100vh;
-  pointer-events: none; /* Não bloquear cliques do CS2 */
+  pointer-events: none; /* Não bloquear cliques do jogo */
   z-index: var(--z-overlay);
 }
 
@@ -48,7 +48,7 @@ html, body {
   width: 100%;
   height: 100%;
   padding: var(--viewport-margin-y) var(--viewport-margin-x);
-  /* Garantir margens do HUD CS2 */
+  /* Garantir margens do HUD do jogo */
   margin: var(--viewport-margin-y) var(--viewport-margin-x);
 }
 
@@ -59,7 +59,7 @@ html, body {
   align-items: flex-end;
   width: 100%;
   height: 100%;
-  padding-bottom: 80px; /* Espaço do HUD CS2 inferior */
+  padding-bottom: 80px; /* Espaço do HUD inferior */
 }
 
 .ai-coach-container {
@@ -349,4 +349,4 @@ html, body {
   white-space: nowrap;
   z-index: 1000;
   pointer-events: none;
-} 
+}

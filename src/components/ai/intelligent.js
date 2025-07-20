@@ -1,7 +1,7 @@
 /**
- * CS2 Coach AI - Intelligent Orchestrator
+ * Coach AI - Intelligent Orchestrator
  * Sistema orquestrador inteligente para coaching adaptativo
- * Substitui autoAnalyzer.js com arquitetura modular e aprendizado de jogador
+ * Arquitetura modular com aprendizado adaptativo
  */
 
 const ElitePromptSystem = require('./coach/elitePrompt.js');
@@ -183,8 +183,8 @@ class IntelligentOrchestrator {
             }
 
             // Atualizar sistema de inferência estratégica
-            if (this.strategicInference && typeof this.strategicInference.updateGameState === 'function') {
-                this.strategicInference.updateGameState(gameData);
+            if (this.strategicInference && typeof this.strategicInference.updateAnalysisState === 'function') {
+                this.strategicInference.updateAnalysisState(gameData);
             }
 
             console.log('[ORCHESTRATOR] 🔄 Todos os sistemas atualizados');
@@ -197,7 +197,7 @@ class IntelligentOrchestrator {
     // MAIN ORCHESTRATION METHODS
     // ===========================================
     
-    async updateGameState(gameData) {
+    async updateAnalysisState(analysisData) {
         try {
             // Atualizar dados em todos os sistemas
             await this.updateAllSystems(gameData);
@@ -529,7 +529,7 @@ Baseado no perfil do jogador, adapte sua resposta para:
 5. Considerar as pontuações de estilo de jogo para dar conselhos específicos
 
 ${request.event.type === 'coaching_system_test' ? 
-`TESTE DO SISTEMA: Este é um teste automático. Forneça uma dica útil e motivacional de CS2 
+`TESTE DO SISTEMA: Este é um teste automático. Forneça uma dica útil e motivacional 
 baseada nos dados atuais do jogador. Seja conciso e prático. A resposta será falada via TTS.` : ''}
 `;
         
@@ -820,9 +820,9 @@ baseada nos dados atuais do jogador. Seja conciso e prático. A resposta será f
         
         // FASE 4: Melhorar pronúncia para TTS
         cleanedText = cleanedText
-            // Expandir abreviações comuns do CS2
-            .replace(/\bCS2\b/gi, 'Counter-Strike 2')
-            .replace(/\bCS:GO\b/gi, 'Counter-Strike Global Offensive')
+            // Expandir abreviações comuns
+        .replace(/\bFPS\b/gi, 'First Person Shooter')
+        .replace(/\bRTS\b/gi, 'Real Time Strategy')
             .replace(/\bCT\b/gi, 'Counter-Terrorist')
             .replace(/\bCTs\b/gi, 'Counter-Terrorists')
             .replace(/\bT\b/gi, 'Terrorist')
@@ -1117,7 +1117,7 @@ INSTRUÇÕES DE PERSONALIZAÇÃO:
         // Teste 3: Testar TTS diretamente
         try {
             console.log('[ORCHESTRATOR] 🎤 Testando TTS diretamente...');
-            const testMessage = 'Sistema de coaching Counter-Strike 2 funcionando corretamente!';
+            const testMessage = 'Sistema de coaching inteligente funcionando corretamente!';
             await this.tts.speak(testMessage, 'normal');
             
             console.log('[ORCHESTRATOR] ✅ Teste de TTS concluído');
@@ -1560,4 +1560,4 @@ class PlayerLearningEngine {
     }
 }
 
-module.exports = IntelligentOrchestrator; 
+module.exports = IntelligentOrchestrator;

@@ -1,6 +1,6 @@
 /**
- * CS2 Coach AI - User Configuration System
- * Sistema de configuração avançado baseado no guia fornecido
+ * Coach AI - User Configuration System
+ * Sistema de configuração avançado para personalização
  * Permite personalização completa do comportamento do coach
  */
 
@@ -106,7 +106,7 @@ class UserConfiguration {
             
             // === GAME INTEGRATION ===
             game: {
-                gsiEnabled: true,             // Game State Integration
+                dataSourceEnabled: true,     // Data Source Integration
                 ocrEnabled: false,            // OCR para dados adicionais
                 apiIntegration: true,         // Integração com APIs externas
                 steamIntegration: false,      // Integração com Steam
@@ -591,4 +591,4 @@ class UserConfiguration {
     }
 }
 
-module.exports = UserConfiguration; 
+module.exports = UserConfiguration;

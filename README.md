@@ -1,6 +1,6 @@
-# CS2 Coach AI 🎯
+# Coach AI 🎯
 
-**Sistema de Coaching Inteligente para Counter-Strike 2**
+**Sistema de Coaching Inteligente com IA**
 
 ## 🚀 Início Rápido
 
@@ -24,10 +24,10 @@ export STEAM_API_KEY="sua_chave_steam"
 export TRACKER_GG_API_KEY="sua_chave_tracker"
 ```
 
-### 3. Configurar CS2
+### 3. Configuração
 ```bash
-# Copiar arquivo GSI para CS2
-cp src/components/config/gamestate_integration_cs2coach.cfg "C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg\"
+# Configuração básica do sistema
+npm run setup
 ```
 
 ### 4. Iniciar
@@ -64,7 +64,7 @@ window.debugCommands.getStatus()
 
 ### ✅ Implementado e Funcional
 - **Overlay VAC-Safe** - Janela transparente sobre o jogo
-- **Game State Integration** - Dados em tempo real do CS2
+- **Sistema de Análise** - Análise inteligente em tempo real
 - **IA Gemini 2.5 Flash** - Análise inteligente de jogadas
 - **Text-to-Speech** - Feedback audível personalizado
 - **OCR System** - Reconhecimento de texto na tela
@@ -83,7 +83,7 @@ window.debugCommands.getStatus()
 
 **100% VAC-Safe:**
 - ✅ Overlay externo (sem injeção)
-- ✅ Game State Integration oficial
+- ✅ Sistema de análise modular
 - ✅ OCR externo (sem acesso à memória)
 - ✅ Sem modificação de arquivos do jogo
 
@@ -104,10 +104,10 @@ Edite `config/user_config.json` para personalização completa.
 
 ## 🔧 Resolução de Problemas
 
-### GSI não funciona?
-1. Verifique se o arquivo GSI está em `cfg/`
-2. Reinicie o CS2
-3. Teste: `curl http://localhost:3000`
+### Sistema não responde?
+1. Verifique as configurações de API
+2. Confirme a conexão com internet
+3. Teste: `npm run test`
 
 ### IA não responde?
 1. Verifique a chave Gemini
@@ -140,5 +140,5 @@ window.debugCommands.getStatus()
 
 ---
 
-**CS2 Coach AI** - Sistema Tier 1 de coaching para Counter-Strike 2  
-*VAC-Safe • IA Avançada • Performance Otimizada* 
+**Coach AI** - Sistema inteligente de coaching com IA  
+*Modular • IA Avançada • Performance Otimizada*

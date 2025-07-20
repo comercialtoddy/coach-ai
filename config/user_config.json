@@ -49,7 +49,7 @@
     "memoryOptimization": true
   },
   "game": {
-    "gsiEnabled": true,
+    "dataSourceEnabled": true,
     "ocrEnabled": false,
     "apiIntegration": false,
     "steamIntegration": false,

@@ -1,8 +1,8 @@
-# CS2 Coach AI - Configuration Guide
+# Coach AI - Configuration Guide
 
 ## 🔧 Sistema de Configuração Centralizado
 
-Este documento descreve como configurar e usar o sistema centralizado de API keys e variáveis de ambiente do CS2 Coach AI.
+Este documento descreve como configurar e usar o sistema centralizado de API keys e variáveis de ambiente do Coach AI.
 
 ## 📁 Estrutura de Arquivos
 
@@ -316,9 +316,9 @@ NODE_ENV=development
 DEBUG_MODE=true
 LOG_LEVEL=debug
 
-# GSI
-GSI_PORT=3000
-GSI_AUTH_TOKEN=coach-ai-2024
+# API Server
+API_PORT=3000
+API_AUTH_TOKEN=coach-ai-2024
 ```
 
 ### Uso no Main App
@@ -361,4 +361,4 @@ module.exports = CoachAI;
 
 ---
 
-**Este sistema garante que todas as API keys e configurações estejam centralizadas, seguras e fáceis de gerenciar!** 🔐✨ 
+**Este sistema garante que todas as API keys e configurações estejam centralizadas, seguras e fáceis de gerenciar!** 🔐✨

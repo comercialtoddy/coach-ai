@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CS2 Coach AI - Competitive Overlay</title>
+    <title>Coach AI - Intelligent Overlay</title>
     <link rel="stylesheet" href="index.css">
     <style>
         /* Configurações específicas para overlay transparente */
@@ -55,13 +55,13 @@
     <script>
         // Verificar se está rodando no Electron
         if (typeof window !== 'undefined' && window.process && window.process.type === 'renderer') {
-            console.log('CS2 Coach AI Overlay loaded in Electron');
+            console.log('Coach AI Overlay loaded in Electron');
             
             // Configurar comunicação com o main process
             const { ipcRenderer } = require('electron');
             
-            // Receber dados do CS2 GSI
-            ipcRenderer.on('cs2-data', (event, data) => {
+            // Receber dados de entrada
+        ipcRenderer.on('input-data', (event, data) => {
                 window.CoachAI.updateGameData(data);
             });
             
@@ -77,4 +77,4 @@
         }
     </script>
 </body>
-</html> 
+</html>

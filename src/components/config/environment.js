@@ -1,5 +1,5 @@
 /**
- * CS2 Coach AI - Centralized Environment Configuration
+ * Coach AI - Centralized Environment Configuration
  * Sistema centralizado para gerenciar todas as API keys e configurações
  */
 
@@ -120,14 +120,14 @@ class EnvironmentConfig {
      */
     get application() {
         return {
-            name: process.env.APP_NAME || 'CS2_Coach_AI',
+            name: process.env.APP_NAME || 'Coach_AI',
             version: process.env.APP_VERSION || '2.0.0',
             port: parseInt(process.env.APP_PORT) || 3000,
             nodeEnv: process.env.NODE_ENV || 'development',
             
-            gsi: {
-                port: parseInt(process.env.GSI_PORT) || 3000,
-                authToken: process.env.GSI_AUTH_TOKEN || 'coach-ai-2024'
+            api: {
+                port: parseInt(process.env.API_PORT) || 3000,
+                authToken: process.env.API_AUTH_TOKEN || 'coach-ai-2024'
             },
             
             logging: {
@@ -329,4 +329,4 @@ class EnvironmentConfig {
 // Singleton instance
 const config = new EnvironmentConfig();
 
-module.exports = config; 
+module.exports = config;

@@ -1,7 +1,7 @@
 {
   "name": "coach-ai",
   "version": "1.0.0",
-  "description": "CS2 Competitive Overlay with AI Coach Integration",
+  "description": "AI Coach System with Intelligent Analysis",
   "main": "src/components/core/index.js",
   "scripts": {
     "start": "electron .",
@@ -12,10 +12,10 @@
     "test": "jest"
   },
   "keywords": [
-    "cs2",
-    "overlay",
-    "gaming",
     "ai-coach",
+    "overlay",
+    "analysis",
+    "coaching",
     "electron"
   ],
   "author": "Coach AI Team",
@@ -41,8 +41,8 @@
     "robotjs": "^0.6.0"
   },
   "build": {
-    "appId": "com.coachai.cs2overlay",
-    "productName": "CS2 Coach AI",
+    "appId": "com.coachai.overlay",
+    "productName": "Coach AI",
     "directories": {
       "output": "dist"
     },
